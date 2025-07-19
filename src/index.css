@@ -1,0 +1,72 @@
+/* frontend/src/index.css */
+
+/* ======================================================================
+   1. DIRECTIVAS DE TAILWIND (NO TOCAR)
+   ====================================================================== */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ======================================================================
+   2. RESET Y ESTILOS GLOBALES
+   - Soluciona problemas de márgenes y desbordamiento (scroll).
+   - Establece el color de fondo oscuro para toda la app.
+   ====================================================================== */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background-color: #333333; /* Fondo oscuro para toda la aplicación */
+  color: #f0f0f0; /* Texto claro por defecto */
+}
+
+*, *::before, *::after {
+  box-sizing: inherit; /* Asegura que el box-sizing sea consistente */
+}
+
+/* ======================================================================
+   3. CLASES DE UTILIDAD PERSONALIZADAS
+   - Aquí puedes añadir tus propias clases reutilizables.
+   ====================================================================== */
+
+/* Color de fondo para Header y Footer */
+.bg-turquesa {
+  background-color: #21665f;
+}
+
+/* Color de texto claro (si es necesario anular el predeterminado) */
+.text-text-light {
+  color: #f0f0f0;
+}
+
+/* ======================================================================
+   4. ESTILOS DE COMPONENTES (OPCIONAL)
+   - Si quieres definir un estilo de botón global, puedes hacerlo aquí.
+   ====================================================================== */
+.btn {
+  padding: 0.5rem 1rem; /* 8px 16px */
+  border-radius: 9999px; /* fully-rounded */
+  font-weight: 600; /* semibold */
+  transition: background-color 0.2s;
+}
+
+.btn-primary {
+  background-color: #21665f; /* turquesa */
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #1a524c; /* turquesa más oscuro */
+}
+
+.btn-secondary {
+  background-color: white;
+  color: #21665f; /* turquesa */
+  border: 2px solid #21665f;
+}
+
+.btn-secondary:hover {
+  background-color: #f0f0f0; /* un gris muy claro */
+  border-color: #1a524c;
+}
