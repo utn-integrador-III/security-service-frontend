@@ -10,6 +10,8 @@ import SignUp from './pages/SignUp/SignUp';
 import CodeVerification from './pages/CodeVerification';
 import Roles from './pages/Roles';
 import Screens from './pages/screensPost';
+import  UpdateRol from './pages/updateRol';
+import  DeleteScreens from './pages/delScreens';
 import Permissions from './pages/Permissions';
 import RoleRequests from './pages/RoleRequests';
 
@@ -31,8 +33,10 @@ const App: React.FC = () => {
           <Route path="/roles" element={<Roles />} />
           <Route path="/permissions" element={<Permissions />} />
           <Route path="/role-requests" element={<RoleRequests />} />
+          <Route path="/updRol" element={<UpdateRol/>} />
            {/* Screens */}
           <Route path="/screenspost" element={<Screens />} />
+          <Route path="/delScreens" element={<DeleteScreens/>} />
 
           
 
