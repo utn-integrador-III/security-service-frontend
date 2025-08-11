@@ -9,6 +9,7 @@ import './index.css';
 import SignUp from './pages/SignUp/SignUp';
 import CodeVerification from './pages/CodeVerification';
 import Roles from './pages/Roles';
+import Screens from './pages/screensPost';
 import Permissions from './pages/Permissions';
 import RoleRequests from './pages/RoleRequests';
 
@@ -30,6 +31,10 @@ const App: React.FC = () => {
           <Route path="/roles" element={<Roles />} />
           <Route path="/permissions" element={<Permissions />} />
           <Route path="/role-requests" element={<RoleRequests />} />
+           {/* Screens */}
+          <Route path="/screenspost" element={<Screens />} />
+
+          
 
 
           {/* Ruta por defecto */}
