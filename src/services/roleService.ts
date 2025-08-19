@@ -33,20 +33,40 @@ export class RoleService {
   // Obtener todos los roles
   static async getAllRoles(): Promise<Role[]> {
     try {
+      // Check if user is authenticated
+      console.log('Checking authentication status...');
+      console.log('Is authenticated:', AuthService.isAuthenticated());
+      console.log('Token exists:', !!AuthService.getAuthHeaders().Authorization);
+      
+      if (!AuthService.isAuthenticated()) {
+        console.warn('User not authenticated, returning empty roles array');
+        return [];
+      }
+
+      console.log('Making request to /rol with auth headers');
       const response = await fetch(buildApiUrl('/rol'), {
         method: 'GET',
         headers: AuthService.getAuthHeaders(),
       });
 
+      console.log('Roles response status:', response.status);
+
       if (!response.ok) {
+        if (response.status === 401) {
+          console.warn('User not authenticated, returning empty roles array');
+          return [];
+        }
         return handleApiError(response);
       }
 
       const result = await response.json();
+      console.log('Roles response data:', result);
       return result.data || [];
     } catch (error) {
       console.error('Error fetching roles:', error);
-      throw new Error('Error al obtener los roles');
+      // Return empty array if API is not available (for development)
+      console.warn('API not available, returning empty roles array');
+      return [];
     }
   }
 
@@ -73,9 +93,9 @@ export class RoleService {
   // Crear un nuevo rol
   static async createRole(roleData: CreateRoleRequest): Promise<Role> {
     try {
-      const response = await fetch(buildApiUrl('/roles'), {
+      const response = await fetch(buildApiUrl('/rol'), {
         method: 'POST',
-        headers: getDefaultHeaders(),
+        headers: AuthService.getAuthHeaders(),
         body: JSON.stringify(roleData),
       });
 
@@ -83,19 +103,20 @@ export class RoleService {
         return handleApiError(response);
       }
 
-      return await response.json();
+      const result = await response.json();
+      return result.data;
     } catch (error) {
       console.error('Error creating role:', error);
-      throw new Error('Error al crear el rol');
+      throw new Error('Error creating role');
     }
   }
 
   // Actualizar un rol
   static async updateRole(id: string, roleData: UpdateRoleRequest): Promise<Role> {
     try {
-      const response = await fetch(buildApiUrl(`/roles/${id}`), {
+      const response = await fetch(buildApiUrl(`/rol/${id}`), {
         method: 'PUT',
-        headers: getDefaultHeaders(),
+        headers: AuthService.getAuthHeaders(),
         body: JSON.stringify(roleData),
       });
 
@@ -103,19 +124,20 @@ export class RoleService {
         return handleApiError(response);
       }
 
-      return await response.json();
+      const result = await response.json();
+      return result.data;
     } catch (error) {
       console.error('Error updating role:', error);
-      throw new Error('Error al actualizar el rol');
+      throw new Error('Error updating role');
     }
   }
 
   // Eliminar un rol
   static async deleteRole(id: string): Promise<void> {
     try {
-      const response = await fetch(buildApiUrl(`/roles/${id}`), {
+      const response = await fetch(buildApiUrl(`/rol/${id}`), {
         method: 'DELETE',
-        headers: getDefaultHeaders(),
+        headers: AuthService.getAuthHeaders(),
       });
 
       if (!response.ok) {
@@ -123,7 +145,7 @@ export class RoleService {
       }
     } catch (error) {
       console.error('Error deleting role:', error);
-      throw new Error('Error al eliminar el rol');
+      throw new Error('Error deleting role');
     }
   }
 }

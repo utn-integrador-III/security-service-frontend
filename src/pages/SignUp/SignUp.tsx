@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AppService } from '../../services/appService';
 import './SignUp.css'; // Importar los estilos
 
 const SignUp: React.FC = () => {
   const [appName, setAppName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState<{ appName?: string; email?: string; password?: string }>({});
+  const [redirectUrl, setRedirectUrl] = useState('http://localhost:3000/callback');
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<{ appName?: string; email?: string; password?: string; redirectUrl?: string }>({});
   const navigate = useNavigate();
 
   const validateForm = (): boolean => {
-    const newErrors: { appName?: string; email?: string; password?: string } = {};
+    const newErrors: { appName?: string; email?: string; password?: string; redirectUrl?: string } = {};
 
     if (!appName.trim()) {
       newErrors.appName = 'El nombre de la aplicación es requerido.';
@@ -25,24 +28,55 @@ const SignUp: React.FC = () => {
     } else if (password.length < 8) {
       newErrors.password = 'La contraseña debe tener al menos 8 caracteres.';
     }
+    if (!redirectUrl.trim()) {
+      newErrors.redirectUrl = 'La URL de redirección es requerida.';
+    } else if (!/^https?:\/\/.+/.test(redirectUrl)) {
+      newErrors.redirectUrl = 'La URL debe comenzar con http:// o https://';
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
-      console.log('Registrando aplicación con los siguientes datos:');
-      console.log({
-        appName,
-        email,
-        password,
-      });
+      setLoading(true);
+      setErrors({});
       
-      // Simulación de éxito y redirección
-      alert('¡Aplicación registrada con éxito!');
-      navigate('/roles'); // Redirigir a la página de Roles
+      try {
+        console.log('Registrando aplicación con los siguientes datos:');
+        console.log({
+          appName,
+          email,
+          password,
+          redirectUrl,
+        });
+        
+        // Create admin and app using the service
+        const result = await AppService.registerNewApplication(
+          {
+            admin_email: email,
+            password: password,
+            status: 'active',
+          },
+          {
+            name: appName,
+            redirect_url: redirectUrl,
+            status: 'active',
+          }
+        );
+        
+        console.log('Application registered successfully:', result);
+        alert(`¡Aplicación registrada con éxito!\n\nAdmin ID: ${result.admin._id}\nApp ID: ${result.app._id}`);
+        navigate('/roles'); // Redirect to Roles page
+      } catch (error) {
+        console.error('Error registering application:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Error al registrar la aplicación';
+        alert(`Error: ${errorMessage}`);
+      } finally {
+        setLoading(false);
+      }
     } else {
       console.log('Validación fallida. Por favor, corrige los errores.');
     }
@@ -87,8 +121,20 @@ const SignUp: React.FC = () => {
             />
             {errors.password && <p className="error-message">{errors.password}</p>}
           </div>
-          <button type="submit" className="signup-button">
-            Crear Aplicación
+          <div className="input-group">
+            <label htmlFor="redirectUrl">URL de Redirección</label>
+            <input
+              type="url"
+              id="redirectUrl"
+              value={redirectUrl}
+              onChange={(e) => setRedirectUrl(e.target.value)}
+              className={errors.redirectUrl ? 'input-error' : ''}
+              placeholder="https://tu-app.com/callback"
+            />
+            {errors.redirectUrl && <p className="error-message">{errors.redirectUrl}</p>}
+          </div>
+          <button type="submit" className="signup-button" disabled={loading}>
+            {loading ? 'Creando Aplicación...' : 'Crear Aplicación'}
           </button>
         </form>
       </div>

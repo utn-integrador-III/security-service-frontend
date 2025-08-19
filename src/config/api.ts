@@ -17,14 +17,21 @@ export const buildApiUrl = (endpoint: string): string => {
 
 // Función para manejar errores de respuesta
 export const handleApiError = async (response: Response): Promise<never> => {
-  let errorMessage = 'Error en la petición';
-  
+  let errorMessage = 'Request error'; // Default error message
+
   try {
     const errorData = await response.json();
-    errorMessage = errorData.message || errorData.error || errorMessage;
+    // Handle different error response formats
+    if (typeof errorData === 'string') {
+      errorMessage = errorData;
+    } else if (errorData && typeof errorData === 'object') {
+      errorMessage = errorData.message || errorData.error || errorData.detail || JSON.stringify(errorData);
+    } else {
+      errorMessage = `Error ${response.status}: ${response.statusText}`;
+    }
   } catch {
     errorMessage = `Error ${response.status}: ${response.statusText}`;
   }
-  
+
   throw new Error(errorMessage);
 };

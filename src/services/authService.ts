@@ -55,22 +55,32 @@ export class AuthService {
   // Login de usuario
   static async login(credentials: LoginRequest): Promise<LoginResponse> {
     try {
+      console.log('Attempting login with:', credentials.email);
+      
       const response = await fetch(buildApiUrl('/auth/login'), {
         method: 'POST',
         headers: getDefaultHeaders(),
         body: JSON.stringify(credentials),
       });
 
+      console.log('Login response status:', response.status);
+      console.log('Login response headers:', response.headers);
+
       if (!response.ok) {
         return handleApiError(response);
       }
 
       const result = await response.json();
+      console.log('Login response data:', result);
       
       // Guardar token y datos del usuario
       if (result.data?.token) {
         this.setToken(result.data.token);
         this.setUserData(result.data);
+        console.log('Token saved successfully');
+        console.log('User authenticated:', this.isAuthenticated());
+      } else {
+        console.warn('No token found in response');
       }
 
       return result;

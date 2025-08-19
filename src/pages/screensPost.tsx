@@ -118,14 +118,27 @@ const Screens: React.FC = () => {
                 Seleccione un rol
               </option>
               {roles.map((rol) => (
-                <option key={rol.id || rol.name} value={rol.name}>
+                <option key={rol._id || rol.name} value={rol.name}>
                   {rol.name}
                 </option>
               ))}
             </select>
           </div>
 
-         
+          <div className="form-group">
+            <label htmlFor="appId" className="form-label">
+              App ID
+            </label>
+            <input
+              id="appId"
+              type="text"
+              value={appId}
+              onChange={(e) => setAppId(e.target.value)}
+              className="form-input"
+              placeholder="Ingrese el ID de la aplicación"
+              required
+            />
+          </div>
 
           <div className="form-group">
             <label htmlFor="screenInput" className="form-label">
