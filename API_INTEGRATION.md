@@ -1,12 +1,12 @@
-# Integración con Security Service API
+# Security Service API Integration
 
-Este documento explica cómo configurar y usar la integración con la API de seguridad.
+This document explains how to configure and use the integration with the Security Service API.
 
-## Configuración
+## Configuration
 
-### 1. Variables de Entorno
+### 1. Environment Variables
 
-Crea un archivo `.env` en la raíz del proyecto con la siguiente configuración:
+Create a `.env` file in the project root with the following configuration:
 
 ```env
 VITE_API_BASE_URL=http://localhost:5002
