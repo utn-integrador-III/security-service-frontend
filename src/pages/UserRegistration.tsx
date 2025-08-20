@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { UserService } from '../services/userService';
 import { AppService } from '../services/appService';
 import { RoleService } from '../services/roleService';
+import '../styles/auth.css';
 
 const UserRegistration: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -125,150 +126,181 @@ const UserRegistration: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Register New User
-        </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          Create a new user account with access to specific applications
-        </p>
-      </div>
+    <div className="auth-container">
+      <div className="auth-card registration-card">
+        <div className="auth-header">
+          <div className="auth-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+          </div>
+          <h2 className="auth-title">
+            Registrar Nuevo Usuario
+          </h2>
+          <p className="auth-subtitle">
+            Crear una nueva cuenta de usuario con acceso a aplicaciones específicas
+          </p>
+        </div>
+        
+        <form className="auth-form registration-form" onSubmit={handleSubmit}>
+          {error && (
+            <div className="error-message">
+              <svg fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              {error}
+            </div>
+          )}
+          
+          {success && (
+            <div className="success-message">
+              <svg fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              {success}
+            </div>
+          )}
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-                {error}
-              </div>
+          <div className="form-group">
+            <label htmlFor="name" className="form-label">
+              Nombre Completo
+            </label>
+            <input
+              id="name"
+              name="name"
+              type="text"
+              required
+              value={formData.name}
+              onChange={handleInputChange}
+              className="form-input"
+              placeholder="Ingresa el nombre completo"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="email" className="form-label">
+              Correo Electrónico
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              value={formData.email}
+              onChange={handleInputChange}
+              className="form-input"
+              placeholder="usuario@email.com"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="password" className="form-label">
+              Contraseña
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              required
+              value={formData.password}
+              onChange={handleInputChange}
+              className="form-input"
+              placeholder="••••••••"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="confirmPassword" className="form-label">
+              Confirmar Contraseña
+            </label>
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              required
+              value={formData.confirmPassword}
+              onChange={handleInputChange}
+              className="form-input"
+              placeholder="••••••••"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="appId" className="form-label">
+              Aplicación
+            </label>
+            <select
+              id="appId"
+              name="appId"
+              required
+              value={formData.appId}
+              onChange={handleInputChange}
+              className="form-select"
+            >
+              <option value="">Selecciona una aplicación</option>
+              {apps.map(app => (
+                <option key={app._id} value={app._id}>
+                  {app.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="roleId" className="form-label">
+              Rol
+            </label>
+            <select
+              id="roleId"
+              name="roleId"
+              required
+              value={formData.roleId}
+              onChange={handleInputChange}
+              disabled={!formData.appId}
+              className="form-select"
+            >
+              <option value="">
+                {formData.appId ? 'Selecciona un rol' : 'Selecciona una aplicación primero'}
+              </option>
+              {roles.map(role => (
+                <option key={role._id} value={role._id}>
+                  {role.name}
+                </option>
+              ))}
+            </select>
+            {!formData.appId && (
+              <p style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: '#6b7280' }}>
+                Por favor selecciona una aplicación primero para ver los roles disponibles
+              </p>
             )}
-                         {success && (
-               <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">
-                 {success}
-               </div>
-             )}
+          </div>
 
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                Full Name
-              </label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                required
-                value={formData.name}
-                onChange={handleInputChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="auth-button"
+          >
+            {loading ? (
+              <>
+                <svg className="spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Creando Usuario...
+              </>
+            ) : (
+              'Crear Usuario'
+            )}
+          </button>
+        </form>
 
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email Address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                value={formData.email}
-                onChange={handleInputChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                value={formData.password}
-                onChange={handleInputChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                Confirm Password
-              </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                required
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            </div>
-
-                         <div>
-               <label htmlFor="appId" className="block text-sm font-medium text-gray-700">
-                 Application
-               </label>
-                               <select
-                  id="appId"
-                  name="appId"
-                  required
-                  value={formData.appId}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                >
-                  <option value="">Select an application</option>
-                  {apps.map(app => (
-                    <option key={app._id} value={app._id}>
-                      {app.name}
-                    </option>
-                  ))}
-                </select>
-             </div>
-
-                         <div>
-               <label htmlFor="roleId" className="block text-sm font-medium text-gray-700">
-                 Role
-               </label>
-               <select
-                 id="roleId"
-                 name="roleId"
-                 required
-                 value={formData.roleId}
-                 onChange={handleInputChange}
-                 disabled={!formData.appId}
-                 className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-100"
-               >
-                 <option value="">
-                   {formData.appId ? 'Select a role' : 'Select an application first'}
-                 </option>
-                 {roles.map(role => (
-                   <option key={role._id} value={role._id}>
-                     {role.name}
-                   </option>
-                 ))}
-               </select>
-               {!formData.appId && (
-                 <p className="mt-1 text-sm text-gray-500">
-                   Please select an application first to see available roles
-                 </p>
-               )}
-             </div>
-
-            <div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-              >
-                {loading ? 'Creating User...' : 'Create User'}
-              </button>
-            </div>
-          </form>
+        <div className="auth-footer">
+          <p className="auth-footer-text">
+            ¿Necesitas ayuda? 
+            <a href="/admin-dashboard" className="auth-footer-link">
+              Volver al Dashboard
+            </a>
+          </p>
         </div>
       </div>
     </div>

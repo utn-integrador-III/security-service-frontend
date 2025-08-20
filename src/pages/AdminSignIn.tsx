@@ -60,17 +60,6 @@ const AdminSignIn: React.FC = () => {
           <p className="auth-subtitle admin-subtitle">
             Accede al panel de administración del sistema
           </p>
-          <div className="auth-info admin-info">
-            <p><strong>Nota:</strong> Usando endpoint específico para administradores: <code>/auth/admin/login</code></p>
-            <p>Si tienes problemas, verifica:</p>
-            <ul>
-              <li>Que el usuario existe en la base de datos</li>
-              <li>Que la contraseña es correcta</li>
-              <li>Que el usuario tiene rol de <code>user_admin</code></li>
-              <li>Que el dominio del email está permitido por el backend</li>
-              <li>Que el endpoint <code>/auth/admin/login</code> está implementado en el backend</li>
-            </ul>
-          </div>
         </div>
         
         <form className="auth-form" onSubmit={handleSubmit}>
