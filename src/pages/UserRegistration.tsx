@@ -26,11 +26,12 @@ const UserRegistration: React.FC = () => {
 
   const loadAppsAndRoles = async () => {
     try {
-      const apps = await AppService.getAllApps();
+      console.log('🚀 Loading admin apps for user registration...');
+      const apps = await AppService.getAdminApps();
       setApps(apps);
-      console.log('Loaded apps:', apps);
+      console.log('Loaded admin apps for registration:', apps);
     } catch (error) {
-      console.error('Error loading apps:', error);
+      console.error('Error loading admin apps:', error);
       setError('Error loading applications. Please try again.');
     }
   };
@@ -227,7 +228,7 @@ const UserRegistration: React.FC = () => {
 
           <div className="form-group">
             <label htmlFor="appId" className="form-label">
-              Aplicación
+              Tu Aplicación
             </label>
             <select
               id="appId"
@@ -237,7 +238,7 @@ const UserRegistration: React.FC = () => {
               onChange={handleInputChange}
               className="form-select"
             >
-              <option value="">Selecciona una aplicación</option>
+              <option value="">Selecciona una de tus aplicaciones</option>
               {apps.map(app => (
                 <option key={app._id} value={app._id}>
                   {app.name}

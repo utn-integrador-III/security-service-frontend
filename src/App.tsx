@@ -16,6 +16,7 @@ import Screens from './pages/screensPost';
 import Permissions from './pages/Permissions';
 import RoleRequests from './pages/RoleRequests';
 import UserRegistration from './pages/UserRegistration';
+import Apps from './pages/Apps';
 import './index.css';
 
 
@@ -132,6 +133,17 @@ const App: React.FC = () => {
                   <RoleRequests />
                 </div>
               </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/apps" 
+            element={
+              <AdminProtectedRoute>
+                <div>
+                  <Navigation />
+                  <Apps />
+                </div>
+              </AdminProtectedRoute>
             } 
           />
         </Routes>

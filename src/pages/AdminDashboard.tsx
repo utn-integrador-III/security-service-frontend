@@ -1,20 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { AuthService } from '../services/authService';
+import { AppService } from '../services/appService';
 import { Link } from 'react-router-dom';
 import '../styles/adminDashboard.css';
 
 const AdminDashboard: React.FC = () => {
   const [userData, setUserData] = useState<any>(null);
+  const [adminApps, setAdminApps] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadUserData = () => {
-      const data = AuthService.getUserData();
-      setUserData(data);
-      setLoading(false);
+    const loadDashboardData = async () => {
+      try {
+        console.log('🚀 Loading dashboard data...');
+        console.log('🔍 Is authenticated:', AuthService.isAuthenticated());
+        console.log('🔍 Token exists:', !!localStorage.getItem('auth_token'));
+        
+        const data = AuthService.getUserData();
+        setUserData(data);
+        
+        // Cargar apps del admin
+        console.log('📡 Loading admin apps...');
+        const apps = await AppService.getAdminApps();
+        setAdminApps(apps);
+        console.log('✅ Dashboard data loaded successfully');
+      } catch (error) {
+        console.error('Error loading dashboard data:', error);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    loadUserData();
+    loadDashboardData();
   }, []);
 
   if (loading) {
@@ -117,6 +134,7 @@ const AdminDashboard: React.FC = () => {
               </div>
               <div className="stat-info">
                 <h3>Aplicaciones</h3>
+                <a href="#">{adminApps.length} Apps</a>
                 <Link to="/apps">Gestionar Apps</Link>
               </div>
             </div>

@@ -11,6 +11,7 @@ const Roles: React.FC = () => {
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [deletingRoleId, setDeletingRoleId] = useState<string | null>(null);
 
   const permisosDisponibles = [
@@ -73,9 +74,39 @@ const Roles: React.FC = () => {
     };
 
     try {
+             // Información de diagnóstico antes de crear el rol
+       console.log('=== DIAGNÓSTICO COMPLETO ANTES DE CREAR ROL ===');
+       console.log('Datos del rol a crear:', nuevoRol);
+       
+       const token = localStorage.getItem('token');
+       if (token) {
+         try {
+           const payload = JSON.parse(atob(token.split('.')[1]));
+           console.log('🔍 PAYLOAD COMPLETO DEL TOKEN:', payload);
+           console.log('Admin ID del token:', payload.admin_id || payload.user_id);
+           console.log('App ID del token:', payload.app_id || payload.app_client_id);
+           console.log('Email del admin:', payload.email);
+           
+           // Buscar todos los campos relacionados con la app
+           console.log('🔍 TODOS LOS CAMPOS DE APP EN EL TOKEN:');
+           Object.keys(payload).forEach(key => {
+             if (key.toLowerCase().includes('app')) {
+               console.log(`  ${key}:`, payload[key]);
+             }
+           });
+         } catch (error) {
+           console.error('Error decodificando token:', error);
+         }
+       }
+       console.log('=== FIN DIAGNÓSTICO ===');
+
       const createdRole = await RoleService.createRole(nuevoRol);
       console.log('Rol creado exitosamente:', createdRole);
-      alert('Rol creado exitosamente');
+      
+      // Mostrar mensaje de éxito temporal
+      const successMessage = `Rol "${nombre}" creado exitosamente`;
+      setSuccess(successMessage);
+      setTimeout(() => setSuccess(null), 3000);
 
       // Limpiar formulario
       setNombre('');
@@ -87,13 +118,12 @@ const Roles: React.FC = () => {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Error al crear el rol';
       setError(errorMessage);
-      alert(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDeleteRole = async (roleId: string) => {
+  const handleDeleteRole = async (roleId: string, roleName: string) => {
     if (!confirm('¿Estás seguro de que quieres eliminar este rol? Esta acción no se puede deshacer.')) {
       return;
     }
@@ -101,43 +131,38 @@ const Roles: React.FC = () => {
     // Verificar autenticación antes de intentar eliminar
     if (!AuthService.isAuthenticated()) {
       console.error('Usuario no autenticado al intentar eliminar rol');
-      alert('Sesión expirada. Por favor, inicia sesión nuevamente.');
-      // Redirigir al login
-      window.location.href = '/admin-signin';
+      setError('Sesión expirada. Por favor, inicia sesión nuevamente.');
+      // Redirigir al login después de mostrar el error
+      setTimeout(() => {
+        window.location.href = '/admin-signin';
+      }, 3000);
       return;
     }
-
-    // Información de diagnóstico
-    console.log('=== DIAGNÓSTICO ANTES DE ELIMINAR ===');
-    console.log('Usuario autenticado:', AuthService.isAuthenticated());
-    console.log('Tipo de usuario:', AuthService.getUserType());
-    console.log('Headers de autenticación:', AuthService.getAuthHeaders());
-    console.log('ID del rol a eliminar:', roleId);
-    console.log('=== FIN DIAGNÓSTICO ===');
 
     setDeletingRoleId(roleId);
     setError(null);
     try {
-      await RoleService.deleteRole(roleId);
+      await RoleService.deleteRole(roleId, roleName);
       console.log('Rol eliminado exitosamente');
       
       // Actualizar la lista local sin recargar desde el servidor
       setRoles(prevRoles => prevRoles.filter(role => role._id !== roleId));
       
-      // Mostrar mensaje de éxito
-      alert('Rol eliminado exitosamente');
+      // Mostrar mensaje de éxito temporal
+      setError(null);
+      const successMessage = `Rol "${roleName}" eliminado exitosamente`;
+      setSuccess(successMessage);
+      setTimeout(() => setSuccess(null), 3000);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Error al eliminar el rol';
       setError(errorMessage);
       
-      // Si es un error de autenticación, redirigir al login
+      // Si es un error de autenticación, redirigir al login después de mostrar el error
       if (errorMessage.includes('autenticado') || errorMessage.includes('sesión')) {
-        alert(errorMessage);
-        window.location.href = '/admin-signin';
-        return;
+        setTimeout(() => {
+          window.location.href = '/admin-signin';
+        }, 3000);
       }
-      
-      alert(errorMessage);
     } finally {
       setDeletingRoleId(null);
     }
@@ -152,6 +177,13 @@ const Roles: React.FC = () => {
         {error && (
           <div className="error-message">
             {error}
+          </div>
+        )}
+
+        {/* Mostrar mensajes de éxito */}
+        {success && (
+          <div className="success-message">
+            {success}
           </div>
         )}
 
@@ -263,7 +295,7 @@ const Roles: React.FC = () => {
                   </div>
 
                   <button
-                    onClick={() => role._id && handleDeleteRole(role._id)}
+                    onClick={() => role._id && handleDeleteRole(role._id, role.name)}
                     className="delete-button"
                     disabled={loading || deletingRoleId === role._id}
                   >

@@ -62,52 +62,29 @@ export const handleApiError = async (response: Response): Promise<never> => {
 
   // Add specific error context based on status code
   if (response.status === 401) {
-    errorMessage = `Error de autenticación (401): ${errorMessage}. 
+    errorMessage = `🔐 Error de autenticación: ${errorMessage}
     
-Posibles causas:
-• El email o contraseña son incorrectos
-• El usuario no existe en la base de datos
-• El usuario no tiene permisos para esta aplicación
-• El usuario no está activo o está bloqueado
-
-Verifica:
-• Que el email esté escrito correctamente
-• Que la contraseña sea la correcta
-• Que el usuario sea un 'user_admin' válido`;
+Verifica que el email y contraseña sean correctos.`;
   } else if (response.status === 400) {
-    errorMessage = `Error de validación (400): ${errorMessage}. 
+    errorMessage = `⚠️ Error de validación: ${errorMessage}
     
-Posibles causas:
-• Faltan campos requeridos en la petición
-• El formato de los datos es incorrecto
-• El dominio del email no está permitido (ej: "Invalid email domain")
-• El email no cumple con las validaciones del backend
-
-Verifica:
-• Que el email tenga un dominio válido
-• Que el formato del email sea correcto
-• Que todos los campos requeridos estén presentes`;
+Verifica el formato de los datos enviados.`;
   } else if (response.status === 403) {
-    errorMessage = `Error de permisos (403): ${errorMessage}. 
+    errorMessage = `🚫 Error de permisos: ${errorMessage}
     
-Posibles causas:
-• El usuario no tiene permisos para acceder a esta aplicación
-• El rol del usuario no está configurado correctamente
-• La aplicación no está autorizada para este usuario`;
+No tienes permisos para realizar esta acción.`;
   } else if (response.status === 404) {
-    errorMessage = `Error de endpoint (404): ${errorMessage}. 
+    errorMessage = `🔍 Error de endpoint: ${errorMessage}
     
-Posibles causas:
-• El endpoint no existe
-• La URL del backend es incorrecta
-• El backend no está corriendo`;
+El recurso solicitado no fue encontrado.`;
+  } else if (response.status === 422) {
+    errorMessage = `📝 Error de validación: ${errorMessage}
+    
+Los datos enviados no cumplen con las validaciones requeridas.`;
   } else if (response.status >= 500) {
-    errorMessage = `Error del servidor (${response.status}): ${errorMessage}. 
+    errorMessage = `⚡ Error del servidor: ${errorMessage}
     
-Posibles causas:
-• Error interno del backend
-• Problemas de base de datos
-• El backend no está funcionando correctamente`;
+Problema interno del servidor. Inténtalo de nuevo más tarde.`;
   }
 
   console.log('Final error message:', errorMessage);
