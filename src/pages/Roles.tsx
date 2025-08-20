@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import '../Roles.css';
 import { RoleService } from '../services/roleService';
 import type { Role } from '../services/roleService';
+import { AuthService } from '../services/authService';
 
 const Roles: React.FC = () => {
   const [nombre, setNombre] = useState('');
@@ -97,6 +98,23 @@ const Roles: React.FC = () => {
       return;
     }
 
+    // Verificar autenticación antes de intentar eliminar
+    if (!AuthService.isAuthenticated()) {
+      console.error('Usuario no autenticado al intentar eliminar rol');
+      alert('Sesión expirada. Por favor, inicia sesión nuevamente.');
+      // Redirigir al login
+      window.location.href = '/admin-signin';
+      return;
+    }
+
+    // Información de diagnóstico
+    console.log('=== DIAGNÓSTICO ANTES DE ELIMINAR ===');
+    console.log('Usuario autenticado:', AuthService.isAuthenticated());
+    console.log('Tipo de usuario:', AuthService.getUserType());
+    console.log('Headers de autenticación:', AuthService.getAuthHeaders());
+    console.log('ID del rol a eliminar:', roleId);
+    console.log('=== FIN DIAGNÓSTICO ===');
+
     setDeletingRoleId(roleId);
     setError(null);
     try {
@@ -111,6 +129,14 @@ const Roles: React.FC = () => {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Error al eliminar el rol';
       setError(errorMessage);
+      
+      // Si es un error de autenticación, redirigir al login
+      if (errorMessage.includes('autenticado') || errorMessage.includes('sesión')) {
+        alert(errorMessage);
+        window.location.href = '/admin-signin';
+        return;
+      }
+      
       alert(errorMessage);
     } finally {
       setDeletingRoleId(null);

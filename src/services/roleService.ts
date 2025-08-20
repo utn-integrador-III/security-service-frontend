@@ -153,17 +153,62 @@ export class RoleService {
   // Eliminar un rol
   static async deleteRole(id: string): Promise<void> {
     try {
+      // Verificar autenticación antes de hacer la petición
+      if (!AuthService.isAuthenticated()) {
+        console.error('User not authenticated for delete role operation');
+        throw new Error('Usuario no autenticado. Por favor, inicia sesión nuevamente.');
+      }
+
+      console.log('Attempting to delete role with ID:', id);
+      console.log('Auth headers:', AuthService.getAuthHeaders());
+
       const response = await fetch(buildApiUrl(`/rol/${id}`), {
         method: 'DELETE',
         headers: AuthService.getAuthHeaders(),
       });
 
+      console.log('Delete role response status:', response.status);
+
       if (!response.ok) {
+        if (response.status === 401) {
+          console.error('Unauthorized - user not authenticated or token expired');
+          throw new Error('Sesión expirada. Por favor, inicia sesión nuevamente.');
+        }
+        
+        if (response.status === 403) {
+          console.error('Forbidden - user does not have permission to delete roles');
+          throw new Error('No tienes permisos para eliminar roles.');
+        }
+        
+        if (response.status === 404) {
+          console.error('Role not found');
+          throw new Error('El rol no fue encontrado.');
+        }
+        
+        if (response.status === 500) {
+          console.error('Backend error when deleting role');
+          throw new Error('Error del servidor al eliminar el rol. Inténtalo de nuevo.');
+        }
+
         return handleApiError(response);
       }
+
+      console.log('Role deleted successfully');
     } catch (error) {
       console.error('Error deleting role:', error);
-      throw new Error('Error deleting role');
+      
+      // Check if it's a network error
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        console.error('Network error - backend might not be running or CORS issue');
+        throw new Error('Error de conexión. Verifica que el backend esté ejecutándose.');
+      }
+      
+      // Re-throw the error if it's already a string
+      if (error instanceof Error) {
+        throw error;
+      }
+      
+      throw new Error('Error al eliminar el rol');
     }
   }
 }
