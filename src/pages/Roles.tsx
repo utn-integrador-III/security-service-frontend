@@ -31,8 +31,20 @@ const Roles: React.FC = () => {
     try {
       const rolesData = await RoleService.getAllRoles();
       setRoles(rolesData);
+      
+      // If no roles are returned and we're authenticated, it might be a backend issue
+      if (rolesData.length === 0) {
+        console.log('No roles returned - this might indicate:');
+        console.log('1. No roles have been created yet');
+        console.log('2. The user does not have permission to view roles');
+        console.log('3. There might be a backend issue');
+        console.log('The endpoint /rol is working correctly (status 200)');
+      } else {
+        console.log(`Successfully loaded ${rolesData.length} roles`);
+      }
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Error al cargar roles');
+      const errorMessage = error instanceof Error ? error.message : 'Error al cargar roles';
+      setError(errorMessage);
       console.error('Error loading roles:', error);
     } finally {
       setLoading(false);
@@ -102,7 +114,7 @@ const Roles: React.FC = () => {
   return (
     <div className="roles-container">
       <div className="roles-card">
-        <h1 className="roles-title">Gestión de Roles</h1>
+                 <h1 className="roles-title">Gestión de Roles</h1>
 
         {/* Mostrar errores */}
         {error && (
@@ -198,13 +210,18 @@ const Roles: React.FC = () => {
 
         {/* Lista de roles existentes */}
         <div className="roles-list" style={{ marginTop: '40px' }}>
-          <h2 style={{ marginBottom: '20px', color: '#333' }}>Roles Existentes</h2>
+                     <h2 style={{ marginBottom: '20px', color: '#333' }}>Roles Existentes</h2>
           
-          {roles.length === 0 && !loading ? (
-            <p style={{ textAlign: 'center', color: '#666', fontStyle: 'italic' }}>
-              No hay roles creados aún
-            </p>
-          ) : (
+                     {roles.length === 0 && !loading ? (
+             <div style={{ textAlign: 'center', color: '#666', fontStyle: 'italic' }}>
+               <p>No hay roles creados aún</p>
+               <p style={{ fontSize: '12px', marginTop: '10px', color: '#999' }}>
+                 Nota: No hay roles creados en el sistema aún.
+                 <br />
+                 Puedes crear el primer rol usando el formulario de arriba.
+               </p>
+             </div>
+           ) : (
             <div className="roles-grid" style={{ 
               display: 'grid', 
               gap: '15px', 

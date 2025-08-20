@@ -19,7 +19,7 @@ export interface Role {
 export interface CreateRoleRequest {
   name: string;
   description: string;
-  permissions: string[];
+  permissions?: string[];
 }
 
 export interface UpdateRoleRequest {
@@ -56,6 +56,17 @@ export class RoleService {
           console.warn('User not authenticated, returning empty roles array');
           return [];
         }
+        
+        // Handle 500 errors specifically
+        if (response.status === 500) {
+          console.error('Backend error (500) when fetching roles');
+          console.error('This indicates a problem with the backend endpoint /rol');
+          console.error('Please check the backend logs for more details');
+          
+          // Return empty array for now, but log the issue
+          return [];
+        }
+        
         return handleApiError(response);
       }
 
@@ -64,6 +75,13 @@ export class RoleService {
       return result.data || [];
     } catch (error) {
       console.error('Error fetching roles:', error);
+      
+      // Check if it's a network error
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        console.error('Network error - backend might not be running');
+        console.error('Please ensure the backend is running on port 5002');
+      }
+      
       // Return empty array if API is not available (for development)
       console.warn('API not available, returning empty roles array');
       return [];
@@ -85,7 +103,7 @@ export class RoleService {
       const result = await response.json();
       return result.data;
     } catch (error) {
-      console.error('Error fetching role:', error);
+      console.error('Error fetching role by ID:', error);
       throw new Error('Error al obtener el rol');
     }
   }
