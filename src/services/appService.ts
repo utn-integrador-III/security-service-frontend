@@ -128,6 +128,15 @@ export class AppService {
           console.warn('User not authenticated, returning empty apps array');
           return [];
         }
+        
+        // Handle 405 errors specifically for /apps endpoint
+        if (response.status === 405) {
+          console.warn('Method not allowed for /apps endpoint');
+          console.warn('This might indicate the endpoint exists but GET is not supported');
+          console.warn('Returning empty apps array');
+          return [];
+        }
+        
         return handleApiError(response);
       }
 
