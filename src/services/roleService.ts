@@ -14,6 +14,9 @@ export interface Role {
   screens?: string[];
   app?: string;
   app_client_id?: string;
+  app_id?: string;
+  created_by?: string;
+  admin_id?: string;
 }
 
 export interface CreateRoleRequest {
@@ -21,6 +24,8 @@ export interface CreateRoleRequest {
   description: string;
   permissions?: string[];
   app_id?: string;
+  admin_id?: string;
+  created_by?: string;
 }
 
 export interface UpdateRoleRequest {
@@ -89,6 +94,75 @@ export class RoleService {
     }
   }
 
+  // Obtener roles específicos del admin autenticado
+  static async getAdminRoles(): Promise<Role[]> {
+    try {
+      console.log('🚀 Starting getAdminRoles...');
+      
+      // Verificar autenticación
+      if (!AuthService.isAuthenticated()) {
+        console.warn('User not authenticated, returning empty roles array');
+        return [];
+      }
+
+      // Obtener el token y extraer admin_id
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        console.warn('No token found, returning empty roles array');
+        return [];
+      }
+
+      console.log('🔍 Token from localStorage: EXISTS');
+      console.log('🔍 Token length:', token.length);
+      console.log('🔍 Token preview:', token.substring(0, 50) + '...');
+
+      let adminId: string | undefined;
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        adminId = payload.admin_id || payload.user_id || payload.sub || payload.id;
+        console.log('🔍 Admin ID from token:', adminId);
+        console.log('🔍 Full token payload:', payload);
+      } catch (error) {
+        console.error('Error decoding token:', error);
+        return [];
+      }
+
+      if (!adminId) {
+        console.warn('No admin ID found in token, returning empty roles array');
+        return [];
+      }
+
+      // Obtener todos los roles
+      const allRoles = await this.getAllRoles();
+      console.log('📋 All roles loaded:', allRoles.length);
+
+      // Filtrar roles por admin_id - buscar en diferentes campos posibles
+      const adminRoles = allRoles.filter(role => {
+        console.log('🔍 Checking role:', role.name);
+        console.log('  - Role admin_id:', role.admin_id);
+        console.log('  - Role created_by:', role.created_by);
+        console.log('  - Role app_id:', role.app_id);
+        console.log('  - Current admin_id:', adminId);
+        
+        // Verificar si el rol pertenece al admin actual
+        const roleBelongsToAdmin = 
+          role.admin_id === adminId ||
+          role.created_by === adminId ||
+          (role.app_id && role.app_id === adminId);
+        
+        console.log('  - Belongs to admin:', roleBelongsToAdmin);
+        return roleBelongsToAdmin;
+      });
+
+      console.log('✅ Admin roles filtered:', adminRoles.length);
+      console.log('📋 Roles del admin:', adminRoles.map(r => r.name));
+      return adminRoles;
+    } catch (error) {
+      console.error('Error in getAdminRoles:', error);
+      return [];
+    }
+  }
+
   // Obtener un rol por ID
   static async getRoleById(id: string): Promise<Role> {
     try {
@@ -112,38 +186,41 @@ export class RoleService {
   // Crear un nuevo rol
   static async createRole(roleData: CreateRoleRequest): Promise<Role> {
     try {
-      // Obtener el app_id del token del admin
+      // Obtener el token y extraer admin_id y app_id
+      const token = localStorage.getItem('auth_token');
       let appId = roleData.app_id;
+      let adminId: string | undefined;
       
-      if (!appId) {
-        const token = localStorage.getItem('token');
-        if (token) {
-          try {
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            appId = payload.app_id || payload.app_client_id;
-            console.log('App ID from token:', appId);
-          } catch (error) {
-            console.error('Error decodificando token para obtener app_id:', error);
-          }
+      if (token) {
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          adminId = payload.admin_id || payload.user_id || payload.sub || payload.id;
+          appId = appId || payload.app_id || payload.app_client_id;
+          console.log('🔍 Admin ID from token:', adminId);
+          console.log('🔍 App ID from token:', appId);
+        } catch (error) {
+          console.error('Error decodificando token para obtener admin_id y app_id:', error);
         }
       }
 
-      // Preparar los datos del rol incluyendo el app_id
-      const roleDataWithApp = {
+      // Preparar los datos del rol incluyendo el app_id y admin_id
+      const roleDataWithIds = {
         ...roleData,
-        app_id: appId
+        app_id: appId,
+        admin_id: adminId,
+        created_by: adminId
       };
 
       console.log('🚀 DATOS FINALES ENVIADOS AL BACKEND:');
       console.log('  Endpoint:', buildApiUrl('/rol'));
       console.log('  Method: POST');
       console.log('  Headers:', AuthService.getAuthHeaders());
-      console.log('  Body:', JSON.stringify(roleDataWithApp, null, 2));
+      console.log('  Body:', JSON.stringify(roleDataWithIds, null, 2));
 
       const response = await fetch(buildApiUrl('/rol'), {
         method: 'POST',
         headers: AuthService.getAuthHeaders(),
-        body: JSON.stringify(roleDataWithApp),
+        body: JSON.stringify(roleDataWithIds),
       });
 
       console.log('📩 RESPUESTA DEL BACKEND:');

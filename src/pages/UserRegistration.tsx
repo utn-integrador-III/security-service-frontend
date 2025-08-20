@@ -36,14 +36,16 @@ const UserRegistration: React.FC = () => {
     }
   };
 
-  const loadRolesForApp = async (appId: string) => {
+  const loadRolesForApp = async () => {
     try {
       setError('');
-      // Get roles from the API for this specific app
-      const roles = await RoleService.getAllRoles();
+      // Get roles created by the authenticated admin
+      console.log('🚀 Loading admin roles for user registration...');
+      const roles = await RoleService.getAdminRoles();
       setRoles(roles);
+      console.log('Loaded admin roles for registration:', roles);
     } catch (error) {
-      console.error('Error loading roles for app:', error);
+      console.error('Error loading admin roles:', error);
       setError('Error loading roles for this application.');
     }
   };
@@ -55,9 +57,9 @@ const UserRegistration: React.FC = () => {
       [name]: value
     }));
 
-    // If app is selected, load roles for that app
+    // If app is selected, load roles for that admin
     if (name === 'appId' && value) {
-      loadRolesForApp(value);
+      loadRolesForApp();
       // Reset role selection when app changes
       setFormData(prev => ({
         ...prev,
@@ -261,7 +263,7 @@ const UserRegistration: React.FC = () => {
               className="form-select"
             >
               <option value="">
-                {formData.appId ? 'Selecciona un rol' : 'Selecciona una aplicación primero'}
+                {formData.appId ? 'Selecciona uno de tus roles' : 'Selecciona una aplicación primero'}
               </option>
               {roles.map(role => (
                 <option key={role._id} value={role._id}>
@@ -271,7 +273,7 @@ const UserRegistration: React.FC = () => {
             </select>
             {!formData.appId && (
               <p style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: '#6b7280' }}>
-                Por favor selecciona una aplicación primero para ver los roles disponibles
+                Por favor selecciona una aplicación primero para ver tus roles creados
               </p>
             )}
           </div>

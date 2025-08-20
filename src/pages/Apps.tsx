@@ -19,6 +19,22 @@ const Apps: React.FC = () => {
     status: 'active' as 'active' | 'inactive'
   });
 
+  // Estados para el modal de editar app
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingApp, setEditingApp] = useState(false);
+  const [editingAppData, setEditingAppData] = useState({
+    _id: '',
+    name: '',
+    redirect_url: '',
+    status: 'active' as 'active' | 'inactive'
+  });
+
+  // Estados para el modal de ver detalles
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedApp, setSelectedApp] = useState<App | null>(null);
+
+
+
   // Cargar apps al montar el componente
   useEffect(() => {
     loadApps();
@@ -28,18 +44,8 @@ const Apps: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      console.log('🚀 Loading apps in Apps component...');
-      console.log('🔍 Is authenticated:', AuthService.isAuthenticated());
-      console.log('🔍 Token exists:', !!localStorage.getItem('auth_token'));
-      
       const appsData = await AppService.getAdminApps();
       setApps(appsData);
-      
-      if (appsData.length === 0) {
-        console.log('No apps found for this admin');
-      } else {
-        console.log(`Successfully loaded ${appsData.length} apps`);
-      }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Error al cargar aplicaciones';
       setError(errorMessage);
@@ -74,9 +80,7 @@ const Apps: React.FC = () => {
         admin_id: adminId
       };
 
-      console.log('🚀 Creating new app with data:', appData);
       const createdApp = await AppService.createApp(appData);
-      console.log('✅ App created successfully:', createdApp);
 
       // Cerrar modal y limpiar formulario
       setShowCreateModal(false);
@@ -113,6 +117,87 @@ const Apps: React.FC = () => {
     setNewAppData({ name: '', redirect_url: '', status: 'active' });
     setError(null);
   };
+
+  // Funciones para editar app
+  const openEditModal = (app: App) => {
+    setEditingAppData({
+      _id: app._id || '',
+      name: app.name,
+      redirect_url: app.redirect_url,
+      status: app.status
+    });
+    setShowEditModal(true);
+    setError(null);
+    setSuccess(null);
+  };
+
+  const closeEditModal = () => {
+    setShowEditModal(false);
+    setEditingAppData({ _id: '', name: '', redirect_url: '', status: 'active' });
+    setError(null);
+  };
+
+  const handleEditApp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setEditingApp(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      console.log('🔄 Starting app edit...');
+      const updatedApp = await AppService.updateApp(editingAppData._id, {
+        name: editingAppData.name,
+        redirect_url: editingAppData.redirect_url,
+        status: editingAppData.status
+      });
+      console.log('✅ App edit completed');
+
+      // Cerrar modal y limpiar formulario
+      setShowEditModal(false);
+      setEditingAppData({ _id: '', name: '', redirect_url: '', status: 'active' });
+      setSuccess('¡Aplicación actualizada exitosamente!');
+
+      // Recargar la lista de apps
+      await loadApps();
+      
+      // Limpiar mensaje de éxito después de 3 segundos
+      setTimeout(() => {
+        setSuccess(null);
+      }, 3000);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error al actualizar la aplicación';
+      setError(errorMessage);
+      console.error('Error updating app:', error);
+      
+      // Limpiar mensaje de error después de 5 segundos
+      setTimeout(() => {
+        setError(null);
+      }, 5000);
+    } finally {
+      setEditingApp(false);
+    }
+  };
+
+  const handleEditInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setEditingAppData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Funciones para ver detalles
+  const openDetailsModal = (app: App) => {
+    setSelectedApp(app);
+    setShowDetailsModal(true);
+  };
+
+  const closeDetailsModal = () => {
+    setShowDetailsModal(false);
+    setSelectedApp(null);
+  };
+
+
 
   return (
     <div className="apps-container">
@@ -189,20 +274,28 @@ const Apps: React.FC = () => {
                   </div>
 
                   <div className="app-actions">
-                    <button className="action-button edit">
+                    <button 
+                      className="action-button edit"
+                      onClick={() => openEditModal(app)}
+                    >
                       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                       </svg>
                       Editar
                     </button>
                     
-                    <button className="action-button view">
+                    <button 
+                      className="action-button view"
+                      onClick={() => openDetailsModal(app)}
+                    >
                       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                       </svg>
                       Ver Detalles
                     </button>
+
+
                   </div>
                 </div>
               ))}
@@ -301,6 +394,177 @@ const Apps: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal para editar aplicación */}
+      {showEditModal && (
+        <div className="modal-overlay" onClick={closeEditModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2 className="modal-title">Editar Aplicación</h2>
+              <button onClick={closeEditModal} className="modal-close">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <form onSubmit={handleEditApp} className="modal-form">
+              <div className="form-group">
+                <label htmlFor="edit-name" className="form-label">
+                  Nombre de la Aplicación
+                </label>
+                <input
+                  id="edit-name"
+                  name="name"
+                  type="text"
+                  required
+                  value={editingAppData.name}
+                  onChange={handleEditInputChange}
+                  className="form-input"
+                  placeholder="Mi Aplicación"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="edit-redirect_url" className="form-label">
+                  URL de Redirección
+                </label>
+                <input
+                  id="edit-redirect_url"
+                  name="redirect_url"
+                  type="url"
+                  required
+                  value={editingAppData.redirect_url}
+                  onChange={handleEditInputChange}
+                  className="form-input"
+                  placeholder="https://miapp.com/callback"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="edit-status" className="form-label">
+                  Estado
+                </label>
+                <select
+                  id="edit-status"
+                  name="status"
+                  value={editingAppData.status}
+                  onChange={handleEditInputChange}
+                  className="form-select"
+                >
+                  <option value="active">Activa</option>
+                  <option value="inactive">Inactiva</option>
+                </select>
+              </div>
+
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  onClick={closeEditModal}
+                  className="modal-button secondary"
+                  disabled={editingApp}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={editingApp}
+                  className="modal-button primary"
+                >
+                  {editingApp ? (
+                    <>
+                      <svg className="spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Actualizando...
+                    </>
+                  ) : (
+                    'Actualizar Aplicación'
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal para ver detalles de la aplicación */}
+      {showDetailsModal && selectedApp && (
+        <div className="modal-overlay" onClick={closeDetailsModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2 className="modal-title">Detalles de la Aplicación</h2>
+              <button onClick={closeDetailsModal} className="modal-close">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="modal-form">
+              <div className="form-group">
+                <label className="form-label">Nombre de la Aplicación</label>
+                <p className="form-value">{selectedApp.name}</p>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">URL de Redirección</label>
+                <p className="form-value">{selectedApp.redirect_url}</p>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Estado</label>
+                <span className={`status-badge ${selectedApp.status}`}>
+                  {selectedApp.status === 'active' ? 'Activa' : 'Inactiva'}
+                </span>
+              </div>
+
+              {selectedApp.creation_date && (
+                <div className="form-group">
+                  <label className="form-label">Fecha de Creación</label>
+                  <p className="form-value">
+                    {new Date(selectedApp.creation_date).toLocaleDateString('es-ES', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </p>
+                </div>
+              )}
+
+              {selectedApp._id && (
+                <div className="form-group">
+                  <label className="form-label">ID de la Aplicación</label>
+                  <p className="form-value app-id">{selectedApp._id}</p>
+                </div>
+              )}
+
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  onClick={closeDetailsModal}
+                  className="modal-button secondary"
+                >
+                  Cerrar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    closeDetailsModal();
+                    openEditModal(selectedApp);
+                  }}
+                  className="modal-button primary"
+                >
+                  Editar Aplicación
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

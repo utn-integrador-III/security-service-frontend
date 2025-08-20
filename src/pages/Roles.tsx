@@ -32,18 +32,19 @@ const Roles: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const rolesData = await RoleService.getAllRoles();
+      console.log('🚀 Loading admin-specific roles...');
+      const rolesData = await RoleService.getAdminRoles();
       setRoles(rolesData);
       
       // If no roles are returned and we're authenticated, it might be a backend issue
       if (rolesData.length === 0) {
-        console.log('No roles returned - this might indicate:');
-        console.log('1. No roles have been created yet');
-        console.log('2. The user does not have permission to view roles');
+        console.log('No roles returned for this admin - this might indicate:');
+        console.log('1. No roles have been created by this admin yet');
+        console.log('2. The admin does not have permission to view roles');
         console.log('3. There might be a backend issue');
         console.log('The endpoint /rol is working correctly (status 200)');
       } else {
-        console.log(`Successfully loaded ${rolesData.length} roles`);
+        console.log(`Successfully loaded ${rolesData.length} roles for this admin`);
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Error al cargar roles';
@@ -264,16 +265,16 @@ const Roles: React.FC = () => {
 
         {/* Lista de roles existentes */}
         <div className="roles-list">
-          <h2 className="roles-list-title">Roles Existentes</h2>
+          <h2 className="roles-list-title">Mis Roles Creados</h2>
           
           {roles.length === 0 && !loading ? (
             <div className="empty-state">
               <div className="empty-state-title">No hay roles creados</div>
               <div className="empty-state-description">
-                Aún no se han creado roles en el sistema.
+                Aún no has creado roles en el sistema.
               </div>
               <div className="empty-state-note">
-                Puedes crear el primer rol usando el formulario de arriba.
+                Puedes crear tu primer rol usando el formulario de arriba.
               </div>
             </div>
           ) : (
