@@ -1,20 +1,16 @@
-import React, { type ReactNode } from 'react';
+import React from 'react';
 import { Navigate } from 'react-router-dom';
-
-// Simulación de autenticación (ajusta según tu contexto real)
-const useAuth = () => {
-  return { isAuthenticated: false };
-};
+import { AuthService } from '../services/authService';
 
 interface ProtectedRouteProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { isAuthenticated } = useAuth();
+  const isAuthenticated = AuthService.isAuthenticated();
 
   if (!isAuthenticated) {
-    return <Navigate to="/home" />;
+    return <Navigate to="/signin" replace />;
   }
 
   return <>{children}</>;

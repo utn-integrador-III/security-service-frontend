@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppService } from '../../services/appService';
-import './SignUp.css'; // Importar los estilos
+import '../../styles/auth.css';
 
 const SignUp: React.FC = () => {
   const [appName, setAppName] = useState('');
@@ -68,8 +68,8 @@ const SignUp: React.FC = () => {
         );
         
         console.log('Application registered successfully:', result);
-        alert(`¡Aplicación registrada con éxito!\n\nAdmin ID: ${result.admin._id}\nApp ID: ${result.app._id}`);
-        navigate('/roles'); // Redirect to Roles page
+        alert(`¡Aplicación registrada con éxito!\n\nAdmin ID: ${result.admin._id}\nApp ID: ${result.app._id}\n\nAhora puedes hacer login con las credenciales que usaste.`);
+        navigate('/signin'); // Redirect to SignIn page
       } catch (error) {
         console.error('Error registering application:', error);
         const errorMessage = error instanceof Error ? error.message : 'Error al registrar la aplicación';
@@ -83,58 +83,127 @@ const SignUp: React.FC = () => {
   };
 
   return (
-    <div className="signup-container">
-      <div className="signup-card">
-        <h1 className="signup-title">Registrar Nueva Aplicación</h1>
-        <p className="signup-subtitle">Crea una cuenta para gestionar tu aplicación, roles y permisos.</p>
-        <form onSubmit={handleRegister} noValidate>
-          <div className="input-group">
-            <label htmlFor="appName">Nombre de la Aplicación</label>
+    <div className="auth-container">
+      <div className="auth-card">
+        <div className="auth-header">
+          <div className="auth-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+          </div>
+          <h1 className="auth-title">
+            Registrar Nueva Aplicación
+          </h1>
+          <p className="auth-subtitle">
+            Crea una cuenta para gestionar tu aplicación, roles y permisos
+          </p>
+        </div>
+        
+        <form onSubmit={handleRegister} noValidate className="auth-form">
+          <div className="form-group">
+            <label htmlFor="appName" className="form-label">
+              Nombre de la Aplicación
+            </label>
             <input
               type="text"
               id="appName"
               value={appName}
               onChange={(e) => setAppName(e.target.value)}
-              className={errors.appName ? 'input-error' : ''}
+              className={`form-input ${errors.appName ? 'error' : ''}`}
+              placeholder="Mi Aplicación"
             />
-            {errors.appName && <p className="error-message">{errors.appName}</p>}
+            {errors.appName && (
+              <div className="error-message">
+                <svg fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                {errors.appName}
+              </div>
+            )}
           </div>
-          <div className="input-group">
-            <label htmlFor="email">Correo del Administrador</label>
+          
+          <div className="form-group">
+            <label htmlFor="email" className="form-label">
+              Correo del Administrador
+            </label>
             <input
               type="email"
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className={errors.email ? 'input-error' : ''}
+              className={`form-input ${errors.email ? 'error' : ''}`}
+              placeholder="admin@tuempresa.com"
             />
-            {errors.email && <p className="error-message">{errors.email}</p>}
+            {errors.email && (
+              <div className="error-message">
+                <svg fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                {errors.email}
+              </div>
+            )}
           </div>
-          <div className="input-group">
-            <label htmlFor="password">Contraseña</label>
+          
+          <div className="form-group">
+            <label htmlFor="password" className="form-label">
+              Contraseña
+            </label>
             <input
               type="password"
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className={errors.password ? 'input-error' : ''}
+              className={`form-input ${errors.password ? 'error' : ''}`}
+              placeholder="••••••••"
             />
-            {errors.password && <p className="error-message">{errors.password}</p>}
+            {errors.password && (
+              <div className="error-message">
+                <svg fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                {errors.password}
+              </div>
+            )}
           </div>
-          <div className="input-group">
-            <label htmlFor="redirectUrl">URL de Redirección</label>
+          
+          <div className="form-group">
+            <label htmlFor="redirectUrl" className="form-label">
+              URL de Redirección
+            </label>
             <input
               type="url"
               id="redirectUrl"
               value={redirectUrl}
               onChange={(e) => setRedirectUrl(e.target.value)}
-              className={errors.redirectUrl ? 'input-error' : ''}
+              className={`form-input ${errors.redirectUrl ? 'error' : ''}`}
               placeholder="https://tu-app.com/callback"
             />
-            {errors.redirectUrl && <p className="error-message">{errors.redirectUrl}</p>}
+            {errors.redirectUrl && (
+              <div className="error-message">
+                <svg fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                {errors.redirectUrl}
+              </div>
+            )}
           </div>
-          <button type="submit" className="signup-button" disabled={loading}>
-            {loading ? 'Creando Aplicación...' : 'Crear Aplicación'}
+          
+          <button 
+            type="submit" 
+            disabled={loading}
+            className="auth-button"
+          >
+            {loading ? (
+              <>
+                <svg className="spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Creando Aplicación...
+              </>
+            ) : (
+              'Crear Aplicación'
+            )}
           </button>
         </form>
       </div>

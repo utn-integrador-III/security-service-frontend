@@ -110,6 +110,12 @@ export class AppService {
   // Get all apps
   static async getAllApps(status?: string): Promise<App[]> {
     try {
+      // Check if user is authenticated
+      if (!AuthService.isAuthenticated()) {
+        console.warn('User not authenticated, returning empty apps array');
+        return [];
+      }
+
       const url = status ? buildApiUrl(`/apps?status=${status}`) : buildApiUrl('/apps');
       
       const response = await fetch(url, {
@@ -118,6 +124,10 @@ export class AppService {
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          console.warn('User not authenticated, returning empty apps array');
+          return [];
+        }
         return handleApiError(response);
       }
 
@@ -125,7 +135,9 @@ export class AppService {
       return result.data || [];
     } catch (error) {
       console.error('Error fetching apps:', error);
-      throw new Error('Error fetching apps');
+      // Return empty array if API is not available (for development)
+      console.warn('API not available, returning empty apps array');
+      return [];
     }
   }
 

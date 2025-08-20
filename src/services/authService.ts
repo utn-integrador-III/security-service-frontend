@@ -4,6 +4,12 @@ import { buildApiUrl, getDefaultHeaders, handleApiError } from '../config/api';
 export interface LoginRequest {
   email: string;
   password: string;
+  app: string;
+}
+
+export interface AdminLoginRequest {
+  email: string;
+  password: string;
 }
 
 export interface LoginResponse {
@@ -18,6 +24,24 @@ export interface LoginResponse {
       screens: string[];
     };
     token: string;
+  };
+  message: string;
+  message_code: string;
+}
+
+export interface AdminLoginResponse {
+  data: {
+    email: string;
+    name: string;
+    status: string;
+    role: {
+      name: string;
+      permissions: string[];
+      is_active: boolean;
+      screens: string[];
+    };
+    token: string;
+    isAdmin: boolean;
   };
   message: string;
   message_code: string;
@@ -57,10 +81,16 @@ export class AuthService {
     try {
       console.log('Attempting login with:', credentials.email);
       
+      // Asegurar que el campo app esté presente
+      const loginData = {
+        ...credentials,
+        app: credentials.app || 'security-service-frontend'
+      };
+      
       const response = await fetch(buildApiUrl('/auth/login'), {
         method: 'POST',
         headers: getDefaultHeaders(),
-        body: JSON.stringify(credentials),
+        body: JSON.stringify(loginData),
       });
 
       console.log('Login response status:', response.status);
@@ -76,9 +106,14 @@ export class AuthService {
       // Guardar token y datos del usuario
       if (result.data?.token) {
         this.setToken(result.data.token);
-        this.setUserData(result.data);
-        console.log('Token saved successfully');
+        
+        // Detectar si es administrador basándose en la respuesta del backend
+        const isAdmin = this.detectAdminFromResponse(result.data);
+        
+        this.setUserData({ ...result.data, isAdmin });
+        console.log(`${isAdmin ? 'Admin' : 'User'} token saved successfully`);
         console.log('User authenticated:', this.isAuthenticated());
+        console.log('User type:', isAdmin ? 'admin' : 'user');
       } else {
         console.warn('No token found in response');
       }
@@ -87,6 +122,75 @@ export class AuthService {
     } catch (error) {
       console.error('Error during login:', error);
       throw new Error('Error al iniciar sesión');
+    }
+  }
+
+  // Login de administrador
+  static async adminLogin(credentials: AdminLoginRequest): Promise<AdminLoginResponse> {
+    try {
+      console.log('=== ADMIN LOGIN DEBUG ===');
+      console.log('Email:', credentials.email);
+      console.log('Password length:', credentials.password?.length || 0);
+      console.log('App:', credentials.app);
+      
+      // Usar el endpoint específico para administradores
+      const loginData = {
+        email: credentials.email,
+        password: credentials.password
+        // No necesitamos el campo app para el endpoint de admin
+      };
+      
+      console.log('Final request payload:', JSON.stringify(loginData, null, 2));
+      console.log('Request URL:', buildApiUrl('/auth/admin/login'));
+      console.log('Request headers:', getDefaultHeaders());
+      console.log('API Base URL:', import.meta.env.VITE_API_BASE_URL || 'http://localhost:5002');
+      
+      // Usar el endpoint específico para administradores
+      const response = await fetch(buildApiUrl('/auth/admin/login'), {
+        method: 'POST',
+        headers: getDefaultHeaders(),
+        body: JSON.stringify(loginData),
+      });
+
+      console.log('Admin login response status:', response.status);
+      console.log('Admin login response headers:', response.headers);
+
+      if (!response.ok) {
+        return handleApiError(response);
+      }
+
+      const result = await response.json();
+      console.log('Admin login response data:', result);
+      
+      // Guardar token y datos del usuario
+      if (result.data?.token) {
+        this.setToken(result.data.token);
+        
+        // Detectar si es administrador basándose en la respuesta del backend
+        // El backend puede indicar esto de varias formas:
+        // 1. Campo isAdmin en la respuesta
+        // 2. Rol específico (ej: "Administrator", "admin", etc.)
+        // 3. Permisos específicos
+        const isAdmin = this.detectAdminFromResponse(result.data);
+        
+        this.setUserData({ ...result.data, isAdmin });
+        console.log(`${isAdmin ? 'Admin' : 'User'} token saved successfully`);
+        console.log('User authenticated:', this.isAuthenticated());
+        console.log('User type:', isAdmin ? 'admin' : 'user');
+      } else {
+        console.warn('No token found in response');
+      }
+
+      return result;
+    } catch (error) {
+      console.error('Error during admin login:', error);
+      
+      // Si el backend no está disponible, mostrar un mensaje más específico
+      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+        throw new Error('No se puede conectar al servidor. Verifica que el backend esté corriendo en http://localhost:5002');
+      }
+      
+      throw new Error('Error al iniciar sesión como administrador');
     }
   }
 
@@ -153,23 +257,33 @@ export class AuthService {
   }
 
   // Logout
-  static async logout(email: string): Promise<void> {
+  static async logout(email?: string): Promise<void> {
     try {
+      const userData = this.getUserData();
+      const userEmail = email || userData?.email;
+      
+      if (!userEmail) {
+        console.warn('No email provided for logout');
+        this.clearAuthData();
+        return;
+      }
+
       const response = await fetch(buildApiUrl('/auth/logout'), {
         method: 'PUT',
         headers: getDefaultHeaders(),
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email: userEmail }),
       });
 
       if (!response.ok) {
-        return handleApiError(response);
+        console.warn('Logout API call failed, but clearing local data');
       }
 
       // Limpiar datos locales
       this.clearAuthData();
     } catch (error) {
       console.error('Error during logout:', error);
-      throw new Error('Error al cerrar sesión');
+      // Aún limpiar datos locales en caso de error
+      this.clearAuthData();
     }
   }
 
@@ -203,6 +317,54 @@ export class AuthService {
   static hasPermission(permission: string): boolean {
     const permissions = this.getUserPermissions();
     return permissions.includes(permission);
+  }
+
+  // Verificar si el usuario es administrador
+  static isAdmin(): boolean {
+    const userData = this.getUserData();
+    return userData?.isAdmin === true;
+  }
+
+  // Obtener el tipo de usuario (admin o regular)
+  static getUserType(): 'admin' | 'user' | null {
+    const userData = this.getUserData();
+    if (userData?.isAdmin === true) {
+      return 'admin';
+    } else if (userData) {
+      return 'user';
+    }
+    return null;
+  }
+
+  // Detectar si el usuario es administrador basándose en la respuesta del backend
+  private static detectAdminFromResponse(userData: any): boolean {
+    // 1. Verificar si hay un campo isAdmin explícito
+    if (userData.isAdmin !== undefined) {
+      return Boolean(userData.isAdmin);
+    }
+
+    // 2. Verificar por rol específico
+    const roleName = userData.role?.name?.toLowerCase();
+    const adminRoles = ['administrator', 'admin', 'superadmin', 'user_admin'];
+    if (roleName && adminRoles.includes(roleName)) {
+      return true;
+    }
+
+    // 3. Verificar por permisos específicos
+    const permissions = userData.role?.permissions || [];
+    const adminPermissions = ['admin:all', 'admin:*', 'user_admin', 'super_admin'];
+    if (permissions.some((perm: string) => adminPermissions.includes(perm))) {
+      return true;
+    }
+
+    // 4. Verificar si tiene acceso a todas las pantallas
+    const screens = userData.role?.screens || [];
+    if (screens.includes('*') || screens.includes('all')) {
+      return true;
+    }
+
+    // Por defecto, no es administrador
+    return false;
   }
 
   // Métodos privados para manejo de localStorage
