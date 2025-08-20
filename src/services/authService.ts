@@ -131,7 +131,6 @@ export class AuthService {
       console.log('=== ADMIN LOGIN DEBUG ===');
       console.log('Email:', credentials.email);
       console.log('Password length:', credentials.password?.length || 0);
-      console.log('App:', credentials.app);
       
       // Usar el endpoint específico para administradores
       const loginData = {
@@ -230,6 +229,8 @@ export class AuthService {
         throw new Error('No hay token de autenticación');
       }
 
+      console.log('🔄 Attempting to refresh token...');
+
       const response = await fetch(buildApiUrl('/auth/refresh'), {
         method: 'POST',
         headers: {
@@ -238,7 +239,10 @@ export class AuthService {
         },
       });
 
+      console.log('📩 Refresh token response status:', response.status);
+
       if (!response.ok) {
+        console.error('❌ Token refresh failed:', response.status, response.statusText);
         return handleApiError(response);
       }
 
@@ -246,6 +250,7 @@ export class AuthService {
       
       // Actualizar token
       if (result.data?.token) {
+        console.log('✅ Token refreshed successfully');
         this.setToken(result.data.token);
       }
 
@@ -253,6 +258,37 @@ export class AuthService {
     } catch (error) {
       console.error('Error refreshing token:', error);
       throw new Error('Error al refrescar el token');
+    }
+  }
+
+  // Intentar refrescar token automáticamente si está expirado
+  static async tryRefreshTokenIfExpired(): Promise<boolean> {
+    try {
+      const token = this.getToken();
+      if (!token) {
+        return false;
+      }
+
+      // Verificar si el token está expirado
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const exp = payload.exp * 1000;
+        const now = Date.now();
+        const isExpired = now > exp;
+        
+        if (isExpired) {
+          console.log('🔄 Token expired, attempting to refresh...');
+          await this.refreshToken();
+          return true;
+        }
+      } catch (error) {
+        console.error('Error checking token expiration:', error);
+      }
+
+      return false;
+    } catch (error) {
+      console.error('Error in tryRefreshTokenIfExpired:', error);
+      return false;
     }
   }
 
@@ -290,6 +326,25 @@ export class AuthService {
   // Obtener headers con autenticación
   static getAuthHeaders(): Record<string, string> {
     const token = this.getToken();
+    
+    // Verificar si el token está expirado
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const exp = payload.exp * 1000; // Convertir a milisegundos
+        const now = Date.now();
+        const isExpired = now > exp;
+        
+        if (isExpired) {
+          console.warn('⚠️ Token has expired! Clearing auth data...');
+          this.clearAuthData();
+          return getDefaultHeaders();
+        }
+      } catch (error) {
+        console.error('Error parsing token payload:', error);
+      }
+    }
+    
     return {
       ...getDefaultHeaders(),
       ...(token && { 'Authorization': `Bearer ${token}` }),

@@ -10,6 +10,8 @@ const SignUp: React.FC = () => {
   const [redirectUrl, setRedirectUrl] = useState('http://localhost:3000/callback');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ appName?: string; email?: string; password?: string; redirectUrl?: string }>({});
+  const [success, setSuccess] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const validateForm = (): boolean => {
@@ -43,6 +45,8 @@ const SignUp: React.FC = () => {
     if (validateForm()) {
       setLoading(true);
       setErrors({});
+      setSuccess(null);
+      setError(null);
       
       try {
         console.log('Registrando aplicación con los siguientes datos:');
@@ -68,12 +72,14 @@ const SignUp: React.FC = () => {
         );
         
         console.log('Application registered successfully:', result);
-        alert(`¡Aplicación registrada con éxito!\n\nAdmin ID: ${result.admin._id}\nApp ID: ${result.app._id}\n\nAhora puedes hacer login con las credenciales que usaste.`);
-        navigate('/signin'); // Redirect to SignIn page
+        setSuccess('¡Aplicación registrada exitosamente! Redirigiendo al login de administrador...');
+        setTimeout(() => {
+          navigate('/admin-signin');
+        }, 2000);
       } catch (error) {
         console.error('Error registering application:', error);
         const errorMessage = error instanceof Error ? error.message : 'Error al registrar la aplicación';
-        alert(`Error: ${errorMessage}`);
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -85,6 +91,43 @@ const SignUp: React.FC = () => {
   return (
     <div className="auth-container">
       <div className="auth-card">
+        {/* Mostrar mensajes de éxito */}
+        {success && (
+          <div className="success-message" style={{
+            backgroundColor: '#10b981',
+            color: 'white',
+            padding: '12px 16px',
+            borderRadius: '8px',
+            marginBottom: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            <svg fill="currentColor" viewBox="0 0 20 20" style={{ width: '20px', height: '20px' }}>
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            {success}
+          </div>
+        )}
+
+        {/* Mostrar mensajes de error */}
+        {error && (
+          <div className="error-message" style={{
+            backgroundColor: '#ef4444',
+            color: 'white',
+            padding: '12px 16px',
+            borderRadius: '8px',
+            marginBottom: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            <svg fill="currentColor" viewBox="0 0 20 20" style={{ width: '20px', height: '20px' }}>
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            {error}
+          </div>
+        )}
         <div className="auth-header">
           <div className="auth-icon">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">

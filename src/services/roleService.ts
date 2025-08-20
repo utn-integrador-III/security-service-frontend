@@ -154,6 +154,14 @@ export class RoleService {
         return roleBelongsToAdmin;
       });
 
+      // Si no se encontraron roles, mostrar todos los roles para debugging
+      if (adminRoles.length === 0 && allRoles.length > 0) {
+        console.log('⚠️ No roles found for admin, showing all roles for debugging:');
+        allRoles.forEach(role => {
+          console.log(`  - ${role.name}: admin_id=${role.admin_id}, created_by=${role.created_by}, app_id=${role.app_id}`);
+        });
+      }
+
       console.log('✅ Admin roles filtered:', adminRoles.length);
       console.log('📋 Roles del admin:', adminRoles.map(r => r.name));
       return adminRoles;
@@ -198,8 +206,31 @@ export class RoleService {
           appId = appId || payload.app_id || payload.app_client_id;
           console.log('🔍 Admin ID from token:', adminId);
           console.log('🔍 App ID from token:', appId);
+          console.log('🔍 Token payload completo:', payload);
+          console.log('🔍 Campos del token que contienen "app":');
+          Object.keys(payload).forEach(key => {
+            if (key.toLowerCase().includes('app')) {
+              console.log(`  - ${key}:`, payload[key]);
+            }
+          });
         } catch (error) {
           console.error('Error decodificando token para obtener admin_id y app_id:', error);
+        }
+      }
+
+      // Si no tenemos app_id del token, intentar obtenerlo de las apps del admin
+      if (!appId && adminId) {
+        console.log('🔍 No se encontró app_id en el token, buscando en las apps del admin...');
+        try {
+          // Importar AppService dinámicamente para evitar dependencias circulares
+          const { AppService } = await import('./appService');
+          const adminApps = await AppService.getAdminApps();
+          if (adminApps.length > 0) {
+            appId = adminApps[0]._id; // Usar la primera app del admin
+            console.log('🔍 App ID obtenido de las apps del admin:', appId);
+          }
+        } catch (error) {
+          console.error('Error obteniendo app_id de las apps del admin:', error);
         }
       }
 
@@ -234,6 +265,15 @@ export class RoleService {
       const result = await response.json();
       console.log('✅ RESULTADO FINAL:', result);
       console.log('📄 ROL CREADO EN BD:', result.data);
+      
+      // Verificar si el rol creado tiene los campos correctos
+      console.log('🔍 VERIFICACIÓN DEL ROL CREADO:');
+      console.log('  - admin_id en respuesta:', result.data.admin_id);
+      console.log('  - created_by en respuesta:', result.data.created_by);
+      console.log('  - app_id en respuesta:', result.data.app_id);
+      console.log('  - admin_id enviado:', adminId);
+      console.log('  - app_id enviado:', appId);
+      
       return result.data;
     } catch (error) {
       console.error('Error creating role:', error);
@@ -244,21 +284,85 @@ export class RoleService {
   // Actualizar un rol
   static async updateRole(id: string, roleData: UpdateRoleRequest): Promise<Role> {
     try {
+      // Verificar autenticación antes de hacer la petición
+      if (!AuthService.isAuthenticated()) {
+        console.error('User not authenticated for update role operation');
+        throw new Error('Usuario no autenticado. Por favor, inicia sesión nuevamente.');
+      }
+
+      // Intentar refrescar el token si está expirado
+      await AuthService.tryRefreshTokenIfExpired();
+
+      console.log('🔄 UPDATE ROLE - Starting update...');
+      console.log('  Role ID:', id);
+      console.log('  Role Data:', roleData);
+      console.log('  Endpoint:', buildApiUrl(`/rol/${id}`));
+      console.log('  Headers:', AuthService.getAuthHeaders());
+      console.log('  Body:', JSON.stringify(roleData, null, 2));
+
+      // Usar PATCH directamente ya que está implementado en el backend
       const response = await fetch(buildApiUrl(`/rol/${id}`), {
-        method: 'PUT',
+        method: 'PATCH',
         headers: AuthService.getAuthHeaders(),
         body: JSON.stringify(roleData),
       });
 
-      if (!response.ok) {
-        return handleApiError(response);
+      console.log('📩 PATCH Response Status:', response.status, response.statusText);
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ Role updated successfully!');
+        console.log('📄 Updated role data:', result.data);
+        return result.data;
       }
 
-      const result = await response.json();
-      return result.data;
+      // Manejar errores específicos
+      if (response.status === 401) {
+        console.error('Unauthorized - user not authenticated or token expired');
+        throw new Error('Sesión expirada. Por favor, inicia sesión nuevamente.');
+      }
+      
+      if (response.status === 403) {
+        console.error('Forbidden - user does not have permission to update this role');
+        throw new Error('No tienes permisos para actualizar este rol. Solo el administrador que lo creó puede modificarlo.');
+      }
+      
+      if (response.status === 404) {
+        console.error('Role not found');
+        throw new Error('El rol no fue encontrado.');
+      }
+      
+      if (response.status === 422) {
+        console.error('Validation error - check role data format');
+        throw new Error('Error de validación. Verifica el formato de los datos del rol.');
+      }
+      
+      if (response.status === 500) {
+        console.error('Backend error when updating role');
+        throw new Error('Error del servidor al actualizar el rol. Inténtalo de nuevo.');
+      }
+
+      return handleApiError(response);
     } catch (error) {
-      console.error('Error updating role:', error);
-      throw new Error('Error updating role');
+      console.error('💥 Update failed:', error);
+      
+      // Check if it's a network error
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        console.log('🌐 Network error detected');
+        console.log('🔍 This could be:');
+        console.log('   - Backend not running');
+        console.log('   - Network connectivity issue');
+        console.log('   - CORS issue (backend not allowing PATCH from frontend)');
+        
+        throw new Error('Error de conexión. Verifica que el backend esté ejecutándose.');
+      }
+      
+      // Re-throw the error if it's already a string
+      if (error instanceof Error) {
+        throw error;
+      }
+      
+      throw new Error('Error al actualizar el rol');
     }
   }
 
@@ -271,31 +375,21 @@ export class RoleService {
         throw new Error('Usuario no autenticado. Por favor, inicia sesión nuevamente.');
       }
 
-      console.log('Attempting to delete role with ID:', id, 'Name:', name);
-      console.log('Auth headers:', AuthService.getAuthHeaders());
+      // Intentar refrescar el token si está expirado
+      await AuthService.tryRefreshTokenIfExpired();
 
-      // Información de diagnóstico del admin actual
-      const token = localStorage.getItem('token');
-      if (token) {
-        try {
-          const payload = JSON.parse(atob(token.split('.')[1]));
-          console.log('Admin ID del token:', payload.admin_id || payload.user_id);
-          console.log('Admin email del token:', payload.email);
-        } catch (error) {
-          console.error('Error decodificando token:', error);
-        }
-      }
+      console.log('🗑️ DELETE ROLE - Starting deletion...');
+      console.log('  Role ID:', id);
+      console.log('  Role Name:', name);
+      console.log('  Endpoint:', buildApiUrl(`/rol/${id}`));
 
-      const response = await fetch(buildApiUrl('/rol'), {
+      // Usar el nuevo endpoint DELETE /rol/{id}
+      const response = await fetch(buildApiUrl(`/rol/${id}`), {
         method: 'DELETE',
-        headers: {
-          ...AuthService.getAuthHeaders(),
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ role_name: name })
+        headers: AuthService.getAuthHeaders(),
       });
 
-      console.log('Delete role response status:', response.status);
+      console.log('📩 DELETE Response Status:', response.status, response.statusText);
 
       if (!response.ok) {
         if (response.status === 401) {
@@ -304,19 +398,13 @@ export class RoleService {
         }
         
         if (response.status === 403) {
-          console.error('Forbidden - user does not have permission to delete roles');
-          console.error('This might indicate that only the admin who created the role can delete it');
+          console.error('Forbidden - user does not have permission to delete this role');
           throw new Error('No tienes permisos para eliminar este rol. Solo el administrador que lo creó puede eliminarlo.');
         }
         
         if (response.status === 404) {
           console.error('Role not found');
           throw new Error('El rol no fue encontrado.');
-        }
-        
-        if (response.status === 422) {
-          console.error('Validation error - check role name format');
-          throw new Error('Error de validación. Verifica el formato del nombre del rol.');
         }
         
         if (response.status === 500) {
@@ -327,20 +415,19 @@ export class RoleService {
         return handleApiError(response);
       }
 
-      console.log('Role deleted successfully');
+      console.log('✅ Role deleted successfully');
     } catch (error) {
-      console.error('Error deleting role:', error);
+      console.error('💥 Delete failed:', error);
       
       // Check if it's a network error
       if (error instanceof TypeError && error.message.includes('fetch')) {
-        console.error('Network error - backend might not be running or CORS issue');
-        console.error('This might indicate that the DELETE endpoint is not implemented in the backend');
-        console.error('For now, we will simulate the deletion in the frontend');
+        console.log('🌐 Network error detected');
+        console.log('🔍 This could be:');
+        console.log('   - Backend not running');
+        console.log('   - Network connectivity issue');
+        console.log('   - CORS issue (backend not allowing DELETE from frontend)');
         
-        // Simular eliminación exitosa para desarrollo
-        // TODO: Remove this when backend DELETE endpoint is implemented
-        console.log('Simulating successful deletion for development purposes');
-        return; // Simular éxito
+        throw new Error('Error de conexión. Verifica que el backend esté ejecutándose.');
       }
       
       // Re-throw the error if it's already a string
