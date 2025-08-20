@@ -10,6 +10,7 @@ const Roles: React.FC = () => {
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [deletingRoleId, setDeletingRoleId] = useState<string | null>(null);
 
   const permisosDisponibles = [
     'write',
@@ -92,50 +93,45 @@ const Roles: React.FC = () => {
   };
 
   const handleDeleteRole = async (roleId: string) => {
-    if (!confirm('¿Estás seguro de que quieres eliminar este rol?')) {
+    if (!confirm('¿Estás seguro de que quieres eliminar este rol? Esta acción no se puede deshacer.')) {
       return;
     }
 
-    setLoading(true);
+    setDeletingRoleId(roleId);
     setError(null);
     try {
       await RoleService.deleteRole(roleId);
+      console.log('Rol eliminado exitosamente');
+      
+      // Actualizar la lista local sin recargar desde el servidor
+      setRoles(prevRoles => prevRoles.filter(role => role._id !== roleId));
+      
+      // Mostrar mensaje de éxito
       alert('Rol eliminado exitosamente');
-      await loadRoles();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Error al eliminar el rol';
       setError(errorMessage);
       alert(errorMessage);
     } finally {
-      setLoading(false);
+      setDeletingRoleId(null);
     }
   };
 
   return (
     <div className="roles-container">
       <div className="roles-card">
-                 <h1 className="roles-title">Gestión de Roles</h1>
+        <h1 className="roles-title">Gestión de Roles</h1>
 
         {/* Mostrar errores */}
         {error && (
-          <div className="error-message" style={{ 
-            backgroundColor: '#fee', 
-            color: '#c33', 
-            padding: '10px', 
-            borderRadius: '5px', 
-            marginBottom: '20px' 
-          }}>
+          <div className="error-message">
             {error}
           </div>
         )}
 
         {/* Indicador de carga */}
         {loading && (
-          <div className="loading-message" style={{ 
-            textAlign: 'center', 
-            padding: '20px', 
-            color: '#666' 
-          }}>
+          <div className="loading-message">
             Cargando...
           </div>
         )}
@@ -189,7 +185,7 @@ const Roles: React.FC = () => {
             </div>
           </div>
 
-          <button type="submit" className="submit-button">
+          <button type="submit" className="submit-button" disabled={loading}>
             <span>Crear Rol</span>
             <svg
               className="button-icon"
@@ -209,65 +205,59 @@ const Roles: React.FC = () => {
         </form>
 
         {/* Lista de roles existentes */}
-        <div className="roles-list" style={{ marginTop: '40px' }}>
-                     <h2 style={{ marginBottom: '20px', color: '#333' }}>Roles Existentes</h2>
+        <div className="roles-list">
+          <h2 className="roles-list-title">Roles Existentes</h2>
           
-                     {roles.length === 0 && !loading ? (
-             <div style={{ textAlign: 'center', color: '#666', fontStyle: 'italic' }}>
-               <p>No hay roles creados aún</p>
-               <p style={{ fontSize: '12px', marginTop: '10px', color: '#999' }}>
-                 Nota: No hay roles creados en el sistema aún.
-                 <br />
-                 Puedes crear el primer rol usando el formulario de arriba.
-               </p>
-             </div>
-           ) : (
-            <div className="roles-grid" style={{ 
-              display: 'grid', 
-              gap: '15px', 
-              gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' 
-            }}>
+          {roles.length === 0 && !loading ? (
+            <div className="empty-state">
+              <div className="empty-state-title">No hay roles creados</div>
+              <div className="empty-state-description">
+                Aún no se han creado roles en el sistema.
+              </div>
+              <div className="empty-state-note">
+                Puedes crear el primer rol usando el formulario de arriba.
+              </div>
+            </div>
+          ) : (
+            <div className="roles-grid">
               {roles.map((role) => (
-                                 <div key={role._id} className="role-card" style={{
-                  border: '1px solid #ddd',
-                  borderRadius: '8px',
-                  padding: '15px',
-                  backgroundColor: '#f9f9f9'
-                }}>
-                  <h3 style={{ margin: '0 0 10px 0', color: '#333' }}>{role.name}</h3>
-                  <p style={{ margin: '0 0 10px 0', color: '#666' }}>{role.description}</p>
+                <div key={role._id} className="role-card">
+                  <h3 className="role-name">{role.name}</h3>
+                  <p className="role-description">{role.description}</p>
                   
-                  <div className="role-permissions" style={{ marginBottom: '15px' }}>
-                    <strong style={{ color: '#555' }}>Permisos:</strong>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginTop: '5px' }}>
-                      {role.permissions.map((permission) => (
-                        <span key={permission} style={{
-                          backgroundColor: '#007bff',
-                          color: 'white',
-                          padding: '2px 8px',
-                          borderRadius: '12px',
-                          fontSize: '12px'
-                        }}>
+                  <div className="role-permissions">
+                    <div className="role-permissions-title">Permisos:</div>
+                    <div className="role-permissions-grid">
+                      {role.permissions && role.permissions.map((permission) => (
+                        <span key={permission} className="permission-badge">
                           {permission}
                         </span>
                       ))}
                     </div>
                   </div>
 
-                                     <button
-                     onClick={() => role._id && handleDeleteRole(role._id)}
-                    style={{
-                      backgroundColor: '#dc3545',
-                      color: 'white',
-                      border: 'none',
-                      padding: '8px 16px',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      fontSize: '14px'
-                    }}
-                    disabled={loading}
+                  <button
+                    onClick={() => role._id && handleDeleteRole(role._id)}
+                    className="delete-button"
+                    disabled={loading || deletingRoleId === role._id}
                   >
-                    Eliminar
+                    <svg
+                      className="delete-icon"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      />
+                    </svg>
+                    <span>
+                      {deletingRoleId === role._id ? 'Eliminando...' : 'Eliminar Rol'}
+                    </span>
                   </button>
                 </div>
               ))}

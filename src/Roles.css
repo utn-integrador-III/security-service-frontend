@@ -214,3 +214,284 @@
 .submit-button:hover .button-icon {
   transform: rotate(90deg);
 }
+
+/* ======================================================================
+   LISTA DE ROLES EXISTENTES - DISEÑO PROFESIONAL
+   ====================================================================== */
+
+/* Contenedor de la lista de roles */
+.roles-list {
+  margin-top: 3rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* Título de la sección */
+.roles-list-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #f0f0f0;
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-align: center;
+  position: relative;
+}
+
+.roles-list-title::after {
+  content: '';
+  position: absolute;
+  bottom: -0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(45deg, #21665f, #1a524c);
+  border-radius: 2px;
+}
+
+/* Grid de roles */
+.roles-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+/* Tarjeta de rol individual */
+.role-card {
+  background: #2a2a2a;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  border: 2px solid #21665f;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.role-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(45deg, #21665f, #1a524c);
+}
+
+.role-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(33, 102, 95, 0.4);
+  border-color: #1a524c;
+}
+
+/* Título del rol */
+.role-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #f0f0f0;
+  margin: 0 0 0.75rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Descripción del rol */
+.role-description {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin: 0 0 1rem 0;
+  line-height: 1.4;
+}
+
+/* Contenedor de permisos */
+.role-permissions {
+  margin-bottom: 1.5rem;
+}
+
+.role-permissions-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+}
+
+/* Grid de permisos del rol */
+.role-permissions-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Badge de permiso */
+.permission-badge {
+  background: linear-gradient(45deg, #21665f, #1a524c);
+  color: #f0f0f0;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid #21665f;
+  transition: all 0.3s ease;
+}
+
+.permission-badge:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(33, 102, 95, 0.4);
+}
+
+/* Botón de eliminar */
+.delete-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(45deg, #dc2626, #b91c1c);
+  color: #f0f0f0;
+  border: 2px solid #dc2626;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+}
+
+.delete-button:hover {
+  background: linear-gradient(45deg, #b91c1c, #dc2626);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+}
+
+.delete-button:disabled {
+  background: #6b7280;
+  border-color: #6b7280;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.delete-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: 0.5s;
+  pointer-events: none;
+}
+
+.delete-button:hover::before {
+  left: 100%;
+}
+
+/* Icono del botón eliminar */
+.delete-icon {
+  width: 1rem;
+  height: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.delete-button:hover .delete-icon {
+  transform: scale(1.1);
+}
+
+/* Mensaje de estado vacío */
+.empty-state {
+  text-align: center;
+  color: #6b7280;
+  font-style: italic;
+  padding: 2rem;
+  background: #2a2a2a;
+  border-radius: 0.75rem;
+  border: 2px dashed #21665f;
+}
+
+.empty-state-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #f0f0f0;
+}
+
+.empty-state-description {
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin-bottom: 1rem;
+}
+
+.empty-state-note {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  line-height: 1.3;
+}
+
+/* Mensajes de error y carga */
+.error-message {
+  background: #2a2a2a;
+  border: 2px solid #dc2626;
+  color: #fca5a5;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  position: relative;
+  z-index: 1;
+}
+
+.loading-message {
+  text-align: center;
+  padding: 1.5rem;
+  color: #6b7280;
+  font-weight: 500;
+  position: relative;
+  z-index: 1;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .roles-container {
+    padding: 1rem;
+  }
+  
+  .roles-card {
+    padding: 2rem;
+    max-width: 100%;
+  }
+  
+  .roles-title {
+    font-size: 1.75rem;
+  }
+  
+  .roles-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .role-card {
+    padding: 1.25rem;
+  }
+  
+  .role-name {
+    font-size: 1.1rem;
+  }
+  
+  .delete-button {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.8rem;
+  }
+}
