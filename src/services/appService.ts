@@ -118,10 +118,15 @@ export class AppService {
 
       const url = status ? buildApiUrl(`/apps?status=${status}`) : buildApiUrl('/apps');
       
+      console.log('🔍 Fetching apps from:', url);
+      console.log('🔍 Auth headers:', AuthService.getAuthHeaders());
+      
       const response = await fetch(url, {
         method: 'GET',
         headers: AuthService.getAuthHeaders(),
       });
+
+      console.log('📩 Apps response status:', response.status);
 
       if (!response.ok) {
         if (response.status === 401) {
@@ -141,11 +146,72 @@ export class AppService {
       }
 
       const result = await response.json();
+      console.log('✅ Apps response data:', result);
       return result.data || [];
     } catch (error) {
       console.error('Error fetching apps:', error);
       // Return empty array if API is not available (for development)
       console.warn('API not available, returning empty apps array');
+      return [];
+    }
+  }
+
+  // Get apps for the authenticated admin
+  static async getAdminApps(): Promise<App[]> {
+    try {
+      console.log('🚀 Starting getAdminApps...');
+      
+      // Check if user is authenticated
+      if (!AuthService.isAuthenticated()) {
+        console.warn('User not authenticated, returning empty apps array');
+        return [];
+      }
+
+      // Get admin ID from token
+      const token = localStorage.getItem('auth_token');
+      console.log('🔍 Token from localStorage:', token ? 'EXISTS' : 'NULL');
+      console.log('🔍 Token length:', token ? token.length : 0);
+      console.log('🔍 Token preview:', token ? token.substring(0, 50) + '...' : 'NULL');
+      
+      if (!token) {
+        console.warn('No token found, returning empty apps array');
+        console.log('🔍 Available localStorage keys:', Object.keys(localStorage));
+        return [];
+      }
+
+             let adminId: string | null = null;
+       try {
+         const payload = JSON.parse(atob(token.split('.')[1]));
+         // Intentar diferentes campos donde puede estar el admin_id
+         adminId = payload.admin_id || payload.user_id || payload.sub || payload.id;
+         console.log('🔍 Admin ID from token:', adminId);
+         console.log('🔍 Full token payload:', payload);
+         console.log('🔍 Available fields in token:', Object.keys(payload));
+       } catch (error) {
+         console.error('Error decoding token:', error);
+         return [];
+       }
+
+      if (!adminId) {
+        console.warn('No admin ID found in token, returning empty apps array');
+        return [];
+      }
+
+      // Get all apps and filter by admin_id
+      console.log('📡 Fetching all apps...');
+      const allApps = await this.getAllApps();
+      console.log('📋 All apps received:', allApps);
+      
+      const adminApps = allApps.filter(app => {
+        console.log(`🔍 Comparing app.admin_id (${app.admin_id}) with adminId (${adminId})`);
+        return app.admin_id === adminId;
+      });
+      
+      console.log(`✅ Found ${adminApps.length} apps for admin ${adminId}`);
+      console.log('📋 Admin apps:', adminApps);
+      return adminApps;
+    } catch (error) {
+      console.error('Error fetching admin apps:', error);
       return [];
     }
   }

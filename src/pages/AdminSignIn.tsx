@@ -29,17 +29,9 @@ const AdminSignIn: React.FC = () => {
          window.location.href = '/dashboard';
        }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Admin login failed';
+      const errorMessage = error instanceof Error ? error.message : 'Error al iniciar sesión como administrador';
       setError(errorMessage);
       console.error('Admin login error:', error);
-      
-             // Mostrar información adicional para debugging
-       console.log('=== DEBUG INFO ===');
-       console.log('Email usado:', email);
-       console.log('Longitud de contraseña:', password.length);
-       console.log('Endpoint usado:', '/auth/admin/login');
-       console.log('URL del backend:', import.meta.env.VITE_API_BASE_URL || 'http://localhost:5002');
-       console.log('==================');
     } finally {
       setLoading(false);
     }
@@ -60,17 +52,6 @@ const AdminSignIn: React.FC = () => {
           <p className="auth-subtitle admin-subtitle">
             Accede al panel de administración del sistema
           </p>
-          <div className="auth-info admin-info">
-            <p><strong>Nota:</strong> Usando endpoint específico para administradores: <code>/auth/admin/login</code></p>
-            <p>Si tienes problemas, verifica:</p>
-            <ul>
-              <li>Que el usuario existe en la base de datos</li>
-              <li>Que la contraseña es correcta</li>
-              <li>Que el usuario tiene rol de <code>user_admin</code></li>
-              <li>Que el dominio del email está permitido por el backend</li>
-              <li>Que el endpoint <code>/auth/admin/login</code> está implementado en el backend</li>
-            </ul>
-          </div>
         </div>
         
         <form className="auth-form" onSubmit={handleSubmit}>
