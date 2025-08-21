@@ -23,7 +23,7 @@ const Screens: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const rolesData = await RoleService.getAllRoles();
+      const rolesData = await RoleService.getAdminRoles();
       setRoles(rolesData);
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Error al cargar roles');
@@ -76,7 +76,7 @@ const Screens: React.FC = () => {
   return (
     <div className="roles-container">
       <div className="roles-card">
-        <h1 className="roles-title">Asignar Screens a Rol</h1>
+        <h1 className="roles-title">Asignar Screens a Mis Roles</h1>
 
         {/* Mostrar errores */}
         {error && (
@@ -105,7 +105,7 @@ const Screens: React.FC = () => {
         <form onSubmit={handleSubmit} className="roles-form">
           <div className="form-group">
             <label htmlFor="rolNombre" className="form-label">
-              Nombre del Rol
+              Mis Roles
             </label>
             <select
               id="rolNombre"
@@ -115,7 +115,7 @@ const Screens: React.FC = () => {
               required
             >
               <option value="" disabled>
-                Seleccione un rol
+                Selecciona uno de tus roles
               </option>
               {roles.map((rol) => (
                 <option key={rol._id || rol.name} value={rol.name}>
@@ -123,6 +123,16 @@ const Screens: React.FC = () => {
                 </option>
               ))}
             </select>
+            {roles.length === 0 && !loading && (
+              <p style={{ 
+                fontSize: '14px', 
+                color: '#666', 
+                marginTop: '5px',
+                fontStyle: 'italic'
+              }}>
+                No tienes roles creados. Crea roles primero en la sección "Roles".
+              </p>
+            )}
           </div>
 
           <div className="form-group">

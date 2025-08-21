@@ -155,6 +155,7 @@ const Navigation: React.FC = () => {
               </svg>
               Apps
             </Link>
+            
             <button
               onClick={handleLogout}
               className="nav-button danger"

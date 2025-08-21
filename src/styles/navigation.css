@@ -289,6 +289,13 @@
   }
 }
 
+/* Language toggle in navigation */
+.nav-language-toggle {
+  display: flex;
+  align-items: center;
+  margin: 0 8px;
+}
+
 /* Animation for menu items */
 .nav-link, .nav-button {
   animation: slideInDown 0.3s ease-out;
