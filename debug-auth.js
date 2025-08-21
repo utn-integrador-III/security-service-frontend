@@ -23,3 +23,4 @@ if (token) {
 }
 
 console.log('=== FIN DIAGNÓSTICO ===');
+

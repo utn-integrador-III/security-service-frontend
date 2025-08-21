@@ -146,6 +146,7 @@ const App: React.FC = () => {
               </AdminProtectedRoute>
             } 
           />
+
         </Routes>
       </div>
     </Router>

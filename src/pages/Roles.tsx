@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import '../Roles.css';
 import { RoleService } from '../services/roleService';
+import { AppService } from '../services/appService';
 import type { Role } from '../services/roleService';
+import type { App } from '../services/appService';
 import { AuthService } from '../services/authService';
 
 const Roles: React.FC = () => {
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
+  const [appId, setAppId] = useState('');
   const [permisosSeleccionados, setPermisosSeleccionados] = useState<string[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
+  const [apps, setApps] = useState<App[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -39,10 +43,22 @@ const Roles: React.FC = () => {
 
 
 
-  // Cargar roles al montar el componente
+  // Cargar roles y apps al montar el componente
   useEffect(() => {
     loadRoles();
+    loadApps();
   }, []);
+
+  const loadApps = async () => {
+    try {
+      const appsData = await AppService.getAdminApps();
+      setApps(appsData);
+      console.log('Apps cargadas para roles:', appsData);
+    } catch (error) {
+      console.error('Error loading apps:', error);
+      setError('Error al cargar las aplicaciones');
+    }
+  };
 
   const loadRoles = async () => {
     setLoading(true);
@@ -93,11 +109,53 @@ const Roles: React.FC = () => {
     setLoading(true);
     setError(null);
 
+    // Validaciones
+    if (!appId) {
+      setError('Por favor selecciona una aplicación');
+      setLoading(false);
+      return;
+    }
+
+    if (!nombre.trim()) {
+      setError('Por favor ingresa el nombre del rol');
+      setLoading(false);
+      return;
+    }
+
     const nuevoRol = {
       name: nombre,
       description: descripcion,
+      app_id: appId,
       permissions: permisosSeleccionados,
     };
+
+    console.log('📋 DATOS DEL ROL DESDE EL FORMULARIO:');
+    console.log('  - Nombre:', nombre);
+    console.log('  - Descripción:', descripcion);
+    console.log('  🎯 App ID seleccionado:', appId);
+    console.log('  - Tipo de appId:', typeof appId);
+    console.log('  - AppId es string vacío?', appId === '');
+    console.log('  - AppId es null?', appId === null);
+    console.log('  - AppId es undefined?', appId === undefined);
+    console.log('  - Permisos:', permisosSeleccionados);
+    console.log('  - Payload completo:', nuevoRol);
+    
+    // Verificar qué app corresponde al appId seleccionado
+    const selectedApp = apps.find(app => app._id === appId);
+    console.log('🔍 APP SELECCIONADA EN EL COMBOBOX:');
+    console.log('  - App encontrada:', selectedApp);
+    console.log('  - Nombre de la app:', selectedApp?.name);
+    console.log('  - ID de la app:', selectedApp?._id);
+    
+    // Verificar todas las apps disponibles
+    console.log('📋 TODAS LAS APPS DISPONIBLES:');
+    apps.forEach((app, index) => {
+      console.log(`  ${index + 1}. ${app.name} (ID: ${app._id})`);
+    });
+    
+    // Verificar si el appId seleccionado está en la lista
+    const appExists = apps.some(app => app._id === appId);
+    console.log('🔍 ¿El appId seleccionado existe en la lista?', appExists);
 
     try {
              // Información de diagnóstico antes de crear el rol
@@ -137,6 +195,7 @@ const Roles: React.FC = () => {
       // Limpiar formulario
       setNombre('');
       setDescripcion('');
+      setAppId('');
       setPermisosSeleccionados([]);
 
       // Actualizar el estado local directamente
@@ -320,6 +379,36 @@ const Roles: React.FC = () => {
           </div>
 
           <div className="form-group">
+            <label htmlFor="appId" className="form-label">
+              Aplicación
+            </label>
+            <select
+              id="appId"
+              value={appId}
+              onChange={(e) => setAppId(e.target.value)}
+              className="form-input"
+              required
+            >
+              <option value="">Seleccione una aplicación</option>
+              {apps.map((app) => (
+                <option key={app._id} value={app._id}>
+                  {app.name}
+                </option>
+              ))}
+            </select>
+            {apps.length === 0 && (
+              <p style={{ 
+                fontSize: '12px', 
+                color: '#666', 
+                marginTop: '5px',
+                fontStyle: 'italic'
+              }}>
+                No hay aplicaciones disponibles. Crea una aplicación primero.
+              </p>
+            )}
+          </div>
+
+          <div className="form-group">
             <label className="form-label">Permisos</label>
             <div className="permissions-grid">
               {permisosDisponibles.map((permiso) => (
@@ -378,6 +467,14 @@ const Roles: React.FC = () => {
                 <div key={role._id} className="role-card">
                   <h3 className="role-name">{role.name}</h3>
                   <p className="role-description">{role.description}</p>
+                  <p className="role-app" style={{ 
+                    fontSize: '0.875rem', 
+                    color: '#666', 
+                    marginBottom: '10px',
+                    fontStyle: 'italic'
+                  }}>
+                    Aplicación: {apps.find(app => app._id === role.app_id)?.name || role.app_id}
+                  </p>
                   
                   <div className="role-permissions">
                     <div className="role-permissions-title">Permisos:</div>

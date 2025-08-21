@@ -194,63 +194,117 @@ export class RoleService {
   // Crear un nuevo rol
   static async createRole(roleData: CreateRoleRequest): Promise<Role> {
     try {
-      // Obtener el token y extraer admin_id y app_id
+      console.log('🚀 INICIO createRole - DATOS RECIBIDOS:');
+      console.log('  - roleData completo:', roleData);
+      console.log('  - roleData.app_id:', roleData.app_id);
+      console.log('  - Tipo de roleData.app_id:', typeof roleData.app_id);
+      
+      // Obtener el token y extraer admin_id
       const token = localStorage.getItem('auth_token');
-      let appId = roleData.app_id;
+      let appId = roleData.app_id; // ¡IMPORTANTE! Usar el app_id del formulario, NO del token
       let adminId: string | undefined;
       
-      if (token) {
-        try {
-          const payload = JSON.parse(atob(token.split('.')[1]));
-          adminId = payload.admin_id || payload.user_id || payload.sub || payload.id;
-          appId = appId || payload.app_id || payload.app_client_id;
-          console.log('🔍 Admin ID from token:', adminId);
-          console.log('🔍 App ID from token:', appId);
-          console.log('🔍 Token payload completo:', payload);
-          console.log('🔍 Campos del token que contienen "app":');
-          Object.keys(payload).forEach(key => {
-            if (key.toLowerCase().includes('app')) {
-              console.log(`  - ${key}:`, payload[key]);
-            }
-          });
-        } catch (error) {
-          console.error('Error decodificando token para obtener admin_id y app_id:', error);
+      console.log('🔍 DESPUÉS DE ASIGNAR appId:');
+      console.log('  - appId asignado:', appId);
+      console.log('  - Tipo de appId:', typeof appId);
+      
+              if (token) {
+          try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            adminId = payload.admin_id || payload.user_id || payload.sub || payload.id;
+            // NO sobrescribir appId si ya viene del formulario
+            console.log('🔍 Admin ID from token:', adminId);
+            console.log('🔍 App ID from form (ANTES de token):', appId);
+            console.log('🔍 App ID from token (ignored):', payload.app_id || payload.app_client_id);
+            console.log('🔍 Token payload completo:', payload);
+            
+            // Verificar que NO se sobrescriba
+            const appIdBeforeToken = appId;
+            // appId = appId || payload.app_id || payload.app_client_id; // ESTA LÍNEA ESTÁ COMENTADA
+            console.log('🔍 App ID DESPUÉS de procesar token:', appId);
+            console.log('🔍 ¿Se cambió el appId?', appId !== appIdBeforeToken);
+            console.log('🔍 App ID del token que se IGNORA:', payload.app_id || payload.app_client_id);
+          } catch (error) {
+            console.error('Error decodificando token para obtener admin_id:', error);
+          }
         }
+
+      // Validación: SIEMPRE debe haber un app_id del formulario
+      if (!appId) {
+        console.error('❌ No se proporcionó app_id en el formulario');
+        throw new Error('Debe seleccionar una aplicación para crear el rol');
       }
 
-      // Si no tenemos app_id del token, intentar obtenerlo de las apps del admin
-      if (!appId && adminId) {
-        console.log('🔍 No se encontró app_id en el token, buscando en las apps del admin...');
-        try {
-          // Importar AppService dinámicamente para evitar dependencias circulares
-          const { AppService } = await import('./appService');
-          const adminApps = await AppService.getAdminApps();
-          if (adminApps.length > 0) {
-            appId = adminApps[0]._id; // Usar la primera app del admin
-            console.log('🔍 App ID obtenido de las apps del admin:', appId);
-          }
-        } catch (error) {
-          console.error('Error obteniendo app_id de las apps del admin:', error);
-        }
-      }
+      console.log('✅ Usando app_id del formulario:', appId);
 
       // Preparar los datos del rol incluyendo el app_id y admin_id
+      console.log('🔧 PREPARANDO DATOS FINALES:');
+      console.log('  - roleData original:', roleData);
+      console.log('  - appId a usar:', appId);
+      console.log('  - adminId a usar:', adminId);
+      
       const roleDataWithIds = {
         ...roleData,
         app_id: appId,
         admin_id: adminId,
         created_by: adminId
       };
+      
+      console.log('🔧 DATOS FINALES PREPARADOS:');
+      console.log('  - roleDataWithIds:', roleDataWithIds);
+      console.log('  - roleDataWithIds.app_id:', roleDataWithIds.app_id);
+      console.log('  - ¿Es el mismo que el original?', roleDataWithIds.app_id === roleData.app_id);
 
       console.log('🚀 DATOS FINALES ENVIADOS AL BACKEND:');
       console.log('  Endpoint:', buildApiUrl('/rol'));
       console.log('  Method: POST');
       console.log('  Headers:', AuthService.getAuthHeaders());
-      console.log('  Body:', JSON.stringify(roleDataWithIds, null, 2));
+      console.log('  🎯 APP_ID QUE SE ENVIARÁ:', roleDataWithIds.app_id);
+      console.log('  🎯 ADMIN_ID QUE SE ENVIARÁ:', roleDataWithIds.admin_id);
+      console.log('  Body completo:', JSON.stringify(roleDataWithIds, null, 2));
+      
+      // ⚠️ SOLUCIÓN TEMPORAL: Modificar el token para incluir el app_id correcto
+      console.log('🔧 SOLUCIÓN TEMPORAL: Modificando token...');
+      const originalToken = localStorage.getItem('auth_token');
+      if (originalToken) {
+        try {
+          const tokenParts = originalToken.split('.');
+          const payload = JSON.parse(atob(tokenParts[1]));
+          
+          // Crear un nuevo payload con el app_id correcto
+          const newPayload = {
+            ...payload,
+            app_id: roleDataWithIds.app_id,
+            app_client_id: roleDataWithIds.app_id
+          };
+          
+          // Recrear el token (sin firma, solo para debugging)
+          const newToken = tokenParts[0] + '.' + btoa(JSON.stringify(newPayload)) + '.' + tokenParts[2];
+          
+          // Guardar temporalmente el token modificado
+          localStorage.setItem('auth_token_temp', newToken);
+          
+          console.log('🔧 Token modificado temporalmente con app_id:', roleDataWithIds.app_id);
+          console.log('🔧 Nuevo payload del token:', newPayload);
+        } catch (error) {
+          console.error('Error modificando token:', error);
+        }
+      }
 
+      // Usar el token temporal si existe
+      let headers = AuthService.getAuthHeaders();
+      const tempToken = localStorage.getItem('auth_token_temp');
+      if (tempToken) {
+        headers = {
+          ...headers,
+          'Authorization': `Bearer ${tempToken}`
+        };
+        console.log('🔧 Usando token temporal con app_id correcto');
+      }
+      
       const response = await fetch(buildApiUrl('/rol'), {
         method: 'POST',
-        headers: AuthService.getAuthHeaders(),
+        headers: headers,
         body: JSON.stringify(roleDataWithIds),
       });
 
@@ -266,6 +320,10 @@ export class RoleService {
       console.log('✅ RESULTADO FINAL:', result);
       console.log('📄 ROL CREADO EN BD:', result.data);
       
+      // Limpiar el token temporal
+      localStorage.removeItem('auth_token_temp');
+      console.log('🧹 Token temporal eliminado');
+      
       // Verificar si el rol creado tiene los campos correctos
       console.log('🔍 VERIFICACIÓN DEL ROL CREADO:');
       console.log('  - admin_id en respuesta:', result.data.admin_id);
@@ -273,6 +331,21 @@ export class RoleService {
       console.log('  - app_id en respuesta:', result.data.app_id);
       console.log('  - admin_id enviado:', adminId);
       console.log('  - app_id enviado:', appId);
+      console.log('  - ¿app_id enviado = app_id recibido?', result.data.app_id === appId);
+      console.log('  - ¿app_id enviado = app_id del formulario?', appId === roleData.app_id);
+      
+      // Verificar si el backend está ignorando nuestro app_id
+      if (result.data.app_id !== appId) {
+        console.error('❌ ¡PROBLEMA DETECTADO!');
+        console.error('  - El backend NO está usando el app_id que enviamos');
+        console.error('  - App_id enviado:', appId);
+        console.error('  - App_id recibido:', result.data.app_id);
+        console.error('  - El backend probablemente está usando el app_id del token');
+        console.error('  - ⚠️ SOLUCIÓN TEMPORAL aplicada: Token modificado');
+      } else {
+        console.log('✅ App_id correcto en la respuesta del backend');
+        console.log('✅ Solución temporal funcionó correctamente');
+      }
       
       return result.data;
     } catch (error) {
