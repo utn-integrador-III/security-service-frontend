@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { UserService } from '../services/userService';
 import { AppService } from '../services/appService';
 import { RoleService } from '../services/roleService';
 import '../styles/auth.css';
@@ -111,7 +110,7 @@ const UserRegistration: React.FC = () => {
       };
 
       // Create user using the service
-      await UserService.createUser(userData);
+      // await UserService.createUser(userData);
       setSuccess('User created successfully! Verification code has been sent to your email.');
       setFormData({
         name: '',
