@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ..
+      dockerfile: Docker/Dockerfile
+    container_name: security-frontend-dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - ../src:/app/src
+      - ../public:/app/public
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    working_dir: /app
+    stdin_open: true
+    tty: true
