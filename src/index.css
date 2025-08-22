@@ -26,9 +26,37 @@ html, body, #root {
 }
 
 /* ======================================================================
-   3. CLASES DE UTILIDAD PERSONALIZADAS
+   3. CLASES DE UTILIDAD PERSONALIZADAS Y EFECTOS VISUALES
    - Aquí puedes añadir tus propias clases reutilizables.
    ====================================================================== */
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Text shadow utilities */
+.text-shadow-lg {
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Custom backdrop blur for better performance */
+.backdrop-blur-custom {
+  backdrop-filter: blur(12px) saturate(180%);
+}
+
+/* Enhanced gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #21665f, #1a524c, #21665f);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glow effect for cards */
+.glow-turquesa {
+  box-shadow: 0 0 20px rgba(33, 102, 95, 0.3);
+}
 
 /* Color de fondo para Header y Footer */
 .bg-turquesa {

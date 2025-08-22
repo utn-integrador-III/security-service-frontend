@@ -9,26 +9,39 @@ interface HeroSectionProps {
 
 const HeroSection: React.FC<HeroSectionProps> = ({ title, subtitle }) => {
   return (
-    <div className="text-center">
-      <div className="mb-8 transform transition-transform duration-300 hover:scale-110">
-        <div className="bg-white p-4 rounded-lg inline-block mb-8">
+    <div className="text-center space-y-8">
+      {/* Logo Container */}
+      <div className="flex justify-center">
+        <div className="bg-white p-6 rounded-2xl shadow-2xl transform transition-all duration-500 hover:scale-110 hover:rotate-1">
           <img
             src={utnLogo}
             alt="Logo Universidad Técnica Nacional"
-            className="w-32 h-auto object-contain mx-auto"
+            className="w-36 h-auto object-contain mx-auto"
           />
         </div>
       </div>
       
-      <h1 className="text-5xl font-bold text-turquesa mb-6 animate-fade-in">
-        {title}
-      </h1>
+      {/* Title */}
+      <div className="space-y-4">
+        <h1 className="text-6xl lg:text-7xl font-bold text-turquesa animate-fade-in leading-tight">
+          {title}
+        </h1>
+        
+        {/* Decorative line */}
+        <div className="flex justify-center">
+          <div className="w-24 h-1 bg-gradient-to-r from-turquesa to-turquesa-dark rounded-full"></div>
+        </div>
+      </div>
       
-      <p className="text-xl text-gray-300 mb-8 leading-relaxed max-w-2xl mx-auto animate-slide-up">
-        {subtitle}
-      </p>
+      {/* Subtitle */}
+      <div className="max-w-3xl mx-auto">
+        <p className="text-xl lg:text-2xl text-gray-300 leading-relaxed animate-slide-up">
+          {subtitle}
+        </p>
+      </div>
       
-      <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up">
+      {/* Action Buttons */}
+      <div className="flex flex-col sm:flex-row gap-6 justify-center items-center pt-8 animate-slide-up">
         <ActionButton to="/signin" variant="primary">
           Iniciar Sesión →
         </ActionButton>
