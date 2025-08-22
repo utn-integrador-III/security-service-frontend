@@ -1,33 +1,72 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import utnLogo from '../images/logoUTN2.jpg';
+import HeroSection from '../components/WelcomeCard';
+import FeatureCard from '../components/FeatureCard';
+import StatCard from '../components/StatCard';
 
 const Home: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center px-4">
-      <div className="bg-white/95 rounded-3xl shadow-2xl p-10 max-w-xl w-full flex flex-col items-center text-center">
-        <img
-          src={utnLogo}
-          alt="Logo Universidad Técnica Nacional"
-          className="w-36 h-auto mb-6 animate-fade-in-down"
-        />
-        <h1 className="text-5xl font-extrabold text-gray-800 mb-4 drop-shadow-sm">
-          Bienvenido a <span className="text-turquesa">Security</span>
-        </h1>
-        <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-          Plataforma integral para gestionar acceso y permisos en tus aplicaciones.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-5 w-full justify-center">
-          <Link to="/signin">
-            <button className="btn btn-primary">
-              Iniciar Sesión
-            </button>
-          </Link>
-          <Link to="/signup">
-            <button className="btn btn-secondary">
-              Registrar Aplicación
-            </button>
-          </Link>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white overflow-x-hidden">
+      <div className="container mx-auto px-4 py-12 max-w-7xl">
+        
+        {/* Hero Section */}
+        <div className="mb-16">
+          <HeroSection
+            title="Bienvenido a Security"
+            subtitle="Plataforma integral de seguridad que centraliza la gestión de autenticación, autorización y control de acceso para todas tus aplicaciones empresariales."
+          />
+        </div>
+
+        {/* Features Section */}
+        <div className="mb-16">
+          <div className="flex justify-end mb-8">
+            <div className="bg-gray-800/70 backdrop-blur-sm rounded-lg px-6 py-3 border border-turquesa/30">
+              <h2 className="text-turquesa text-xl font-bold">Características Principales</h2>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl ml-auto">
+            <FeatureCard
+              icon="🔒"
+              title="Autenticación Segura"
+              description="Sistema robusto de autenticación para proteger tus aplicaciones"
+            />
+            
+            <FeatureCard
+              icon="👥"
+              title="Gestión de Roles"
+              description="Define y administra roles personalizados con permisos específicos"
+            />
+            
+            <FeatureCard
+              icon="🛡️"
+              title="Control de Permisos"
+              description="Asigna permisos granulares para cada funcionalidad de tu sistema"
+            />
+            
+            <FeatureCard
+              icon="🏢"
+              title="Multi-Aplicación"
+              description="Gestiona múltiples aplicaciones desde una plataforma centralizada"
+            />
+          </div>
+        </div>
+
+        {/* Stats Section */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          <StatCard
+            value="100%"
+            label="Seguridad Garantizada"
+          />
+          
+          <StatCard
+            value="24/7"
+            label="Monitoreo Continuo"
+          />
+          
+          <StatCard
+            value="∞"
+            label="Aplicaciones Soportadas"
+          />
         </div>
       </div>
     </div>
