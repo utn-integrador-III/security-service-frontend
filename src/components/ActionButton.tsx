@@ -18,7 +18,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
   
   const variantClasses = {
     primary: "bg-turquesa hover:bg-turquesa-dark text-white shadow-xl hover:shadow-2xl focus:ring-turquesa active:scale-95 border-turquesa hover:border-turquesa-dark",
-    secondary: "bg-transparent hover:bg-turquesa/10 text-turquesa border-turquesa hover:border-turquesa-dark shadow-xl hover:shadow-2xl focus:ring-turquesa active:scale-95"
+    secondary: "bg-gradient-to-r from-accent-yellow/90 to-accent-yellow text-gray-900 font-extrabold hover:from-accent-yellow hover:to-yellow-400 border-accent-yellow hover:border-yellow-400 shadow-xl hover:shadow-2xl focus:ring-accent-yellow active:scale-95"
   };
 
   return (
@@ -28,9 +28,9 @@ const ActionButton: React.FC<ActionButtonProps> = ({
         <div className="absolute inset-0 bg-gradient-to-r from-turquesa-dark via-turquesa to-turquesa-dark opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
       )}
       
-      {/* Background glow effect for secondary */}
+      {/* Background glow effect for secondary - más brillante */}
       {variant === 'secondary' && (
-        <div className="absolute inset-0 bg-gradient-to-r from-turquesa/10 via-turquesa/20 to-turquesa/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-yellow-300 via-accent-yellow to-yellow-300 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
       )}
       
       {/* Button content */}

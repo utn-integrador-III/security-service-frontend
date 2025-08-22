@@ -5,7 +5,7 @@ import StatCard from '../components/StatCard';
 
 const Home: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white pt-20">
       {/* Hero Section - Centrado verticalmente */}
       <section className="min-h-[85vh] flex items-center justify-center px-4 py-8">
         <div className="w-full max-w-4xl mx-auto">
