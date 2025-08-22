@@ -43,8 +43,8 @@ const Roles: React.FC = () => {
 
   const loadRoles = async () => {
     try {
-      const rolesData = await RoleService.getAdminRoles();
-      console.log('📋 Roles del admin cargados:', rolesData);
+      const rolesData = await RoleService.getAllRoles();
+      console.log('📋 Roles cargados:', rolesData);
       setRoles(Array.isArray(rolesData) ? rolesData : []);
     } catch (error) {
       console.error('Error loading roles:', error);
@@ -54,8 +54,8 @@ const Roles: React.FC = () => {
 
   const loadApps = async () => {
     try {
-      const appsData = await AppService.getAdminApps();
-      console.log('🎯 Apps del admin cargadas:', appsData);
+      const appsData = await AppService.getAllApps();
+      console.log('🎯 Apps cargadas:', appsData);
       setApps(Array.isArray(appsData) ? appsData : []);
     } catch (error) {
       console.error('Error loading apps:', error);
@@ -214,9 +214,9 @@ const Roles: React.FC = () => {
               </svg>
             </div>
           </div>
-          <h1 className="text-4xl font-bold text-white mb-4">Mis Roles</h1>
+          <h1 className="text-4xl font-bold text-white mb-4">Gestión de Roles</h1>
           <p className="text-gray-300 text-lg max-w-2xl mx-auto">
-            Crea y administra los roles de tus aplicaciones con permisos específicos
+            Crea y administra los roles de tu aplicación con permisos específicos
           </p>
         </div>
 
@@ -383,7 +383,7 @@ const Roles: React.FC = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
                   </div>
-                  <h2 className="text-2xl font-bold text-white">Mis Roles Creados</h2>
+                  <h2 className="text-2xl font-bold text-white">Roles Creados</h2>
                 </div>
                 <div className="text-sm text-gray-400">
                   {roles.length} {roles.length === 1 ? 'rol' : 'roles'}
@@ -398,15 +398,24 @@ const Roles: React.FC = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold text-gray-300 mb-3">No has creado roles aún</h3>
-                <p className="text-gray-400 mb-6">Aún no has creado roles para tus aplicaciones.</p>
+                <h3 className="text-xl font-bold text-gray-300 mb-3">No hay roles creados</h3>
+                <p className="text-gray-400 mb-6">Aún no has creado roles en el sistema.</p>
                 <p className="text-sm text-gray-500">Puedes crear tu primer rol usando el formulario.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {roles.map((role) => {
-                  // Como ya solo cargamos roles del admin actual, todos son editables
-                  const canEdit = true;
+                  const token = localStorage.getItem('auth_token');
+                  let canEdit = false;
+                  if (token) {
+                    try {
+                      const payload = JSON.parse(atob(token.split('.')[1]));
+                      const currentAdminId = payload.admin_id || payload.user_id || payload.sub || payload.id;
+                      canEdit = role.admin_id === currentAdminId || role.created_by === currentAdminId;
+                    } catch {
+                      canEdit = false;
+                    }
+                  }
 
                   return (
                     <div key={role._id} className="bg-gray-800/70 backdrop-blur-xl rounded-3xl border border-gray-700/50 shadow-2xl p-6 hover:border-turquesa/30 transition-all duration-300 group">
