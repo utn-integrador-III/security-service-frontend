@@ -92,7 +92,7 @@ const AdminDashboard: React.FC = () => {
               </div>
               <div className="stat-info">
                 <h3>Usuarios Totales</h3>
-                <Link to="/user-registration">Gestionar Usuarios</Link>
+                <Link to="/user-registration">Crear Nuevo Usuario</Link>
               </div>
             </div>
           </div>
@@ -154,7 +154,7 @@ const AdminDashboard: React.FC = () => {
                 </div>
                 <div className="action-link-content">
                   <h4>Crear Nuevo Usuario</h4>
-                  <p>Registrar un nuevo usuario en el sistema</p>
+                  <p>Registrar nuevos usuarios en el sistema</p>
                 </div>
               </Link>
 
