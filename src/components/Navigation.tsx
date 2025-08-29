@@ -227,12 +227,37 @@ const Navigation: React.FC = () => {
             </Link>
             
             <Link
-              to="/user-registration"
+              to="/screens"
               className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300 flex items-center space-x-2 ${
-                location.pathname === '/user-registration'
+                location.pathname === '/screens'
                   ? 'bg-turquesa/20 text-turquesa border border-turquesa/30'
                   : 'text-gray-300 hover:text-white hover:bg-gray-800/50'
               }`}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              <span>Screens</span>
+            </Link>
+            
+            <Link
+           to="/user-registration"
+            className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300 flex items-center space-x-2 ${
+           location.pathname === '/user-registration'
+        ? 'bg-turquesa/20 text-turquesa border border-turquesa/30'
+        : 'text-gray-300 hover:text-white hover:bg-gray-800/50'
+       }`}
+    >
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+  </svg>
+  <span>Register User</span>
+</Link>
+
+
+            <Link
+              to="/apps"
+              className={`nav-link ${location.pathname === '/apps' ? 'active' : ''}`}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
@@ -332,6 +357,18 @@ const Navigation: React.FC = () => {
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Roles
+            </Link>
+            
+            <Link
+              to="/screens"
+              className={`block px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-300 ${
+                location.pathname === '/screens'
+                  ? 'bg-turquesa/20 text-turquesa'
+                  : 'text-gray-300 hover:text-white hover:bg-gray-800/50'
+              }`}
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Screens
             </Link>
             
             <Link
