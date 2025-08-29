@@ -15,6 +15,7 @@ import Screens from './pages/screensPost';
 import Permissions from './pages/Permissions';
 import RoleRequests from './pages/RoleRequests';
 import UserRegistration from './pages/UserRegistration';
+import UserManagement from './pages/UserManagement';
 
 import Apps from './pages/Apps';
 import './index.css';
@@ -104,6 +105,17 @@ const App: React.FC = () => {
                 <div>
                   <Navigation />
                   <UserRegistration />
+                </div>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/user-management" 
+            element={
+              <ProtectedRoute>
+                <div>
+                  <Navigation />
+                  <UserManagement />
                 </div>
               </ProtectedRoute>
             } 
