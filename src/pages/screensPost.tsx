@@ -32,18 +32,20 @@ const Screens: React.FC = () => {
   useEffect(() => {
     loadRoles();
     loadApps();
-    loadScreens();
+    // No cargar screens automáticamente, se cargarán cuando se seleccione un rol
   }, []);
 
-  // Efecto para seleccionar automáticamente el primer rol cuando se cargan los roles y hay screens
+  // Efecto para seleccionar automáticamente el primer rol cuando se cargan los roles
   useEffect(() => {
-    if (roles.length > 0 && screens.length > 0 && !roleId) {
+    if (roles.length > 0 && !roleId) {
       const firstRole = roles[0];
       setRoleId(firstRole._id || '');
       loadAppForRole(firstRole._id || '');
+      // Cargar screens del primer rol automáticamente
+      loadScreens(firstRole._id || '');
       console.log('🔧 Rol seleccionado automáticamente desde useEffect:', firstRole.name);
     }
-  }, [roles, screens, roleId]);
+  }, [roles]); // Removido roleId de las dependencias para evitar cambios automáticos
 
   const loadRoles = async () => {
     setLoading(true);
@@ -71,29 +73,30 @@ const Screens: React.FC = () => {
     }
   };
 
-  const loadScreens = async () => {
+  const loadScreens = async (selectedRoleId?: string) => {
     setLoadingScreens(true);
     try {
       console.log('🔄 Iniciando carga de screens...');
-      const screensData = await ScreenService.getAllScreens();
-      console.log('📋 Screens cargadas en el componente:', screensData);
+      
+      // Si no se proporciona un roleId, no cargar screens
+      if (!selectedRoleId) {
+        console.log('ℹ️ No hay rol seleccionado, no se cargan screens');
+        setScreens([]);
+        return;
+      }
+      
+      // Obtener screens específicas del rol seleccionado
+      const screensData = await ScreenService.getScreensByRole(selectedRoleId);
+      console.log('📋 Screens cargadas para el rol seleccionado:', screensData);
       console.log('📋 Estructura de la primera screen:', screensData[0]);
       console.log('📋 Tipo de screens:', typeof screensData);
       console.log('📋 Es array:', Array.isArray(screensData));
       setScreens(screensData);
       
       if (screensData.length === 0) {
-        console.log('ℹ️ No hay screens asignadas aún');
+        console.log('ℹ️ No hay screens asignadas a este rol');
       } else {
-        console.log(`✅ ${screensData.length} screens cargadas exitosamente`);
-        
-        // Si hay screens pero no hay rol seleccionado, seleccionar el primer rol disponible
-        if (!roleId && roles.length > 0) {
-          const firstRole = roles[0];
-          setRoleId(firstRole._id || '');
-          loadAppForRole(firstRole._id || '');
-          console.log('🔧 Rol seleccionado automáticamente:', firstRole.name);
-        }
+        console.log(`✅ ${screensData.length} screens cargadas exitosamente para el rol`);
       }
     } catch (error) {
       console.error('❌ Error loading screens:', error);
@@ -103,7 +106,7 @@ const Screens: React.FC = () => {
     }
   };
 
-  // Función para cargar automáticamente la app del rol seleccionado
+  // Función para cargar automáticamente la app del rol seleccionado y sus screens
   const loadAppForRole = (selectedRoleId: string) => {
     if (!selectedRoleId) {
       setAppId('');
@@ -128,6 +131,9 @@ const Screens: React.FC = () => {
     if (assignedApp) {
       console.log('  - Nombre de la app:', assignedApp.name);
     }
+    
+    // Cargar screens específicas del rol seleccionado
+    loadScreens(selectedRoleId);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -185,17 +191,16 @@ const Screens: React.FC = () => {
       const selectedRole = roles.find(role => role._id === roleId);
       const selectedApp = apps.find(app => app._id === appId);
       
-      setSuccess(`✅ Screen "${screenPath}" asignado exitosamente al rol "${selectedRole?.name}" en la aplicación "${selectedApp?.name}"`);
+             setSuccess(`✅ Screen "${screenPath}" asignado exitosamente al rol "${selectedRole?.name}" en la aplicación "${selectedApp?.name}"`);
 
-      setRoleId('');
-      setAppId('');
-      setScreenPath('');
+       // Limpiar solo el campo de screen path, mantener el rol y app seleccionados
+       setScreenPath('');
 
-      // Limpiar mensaje de éxito después de 5 segundos
-      setTimeout(() => setSuccess(null), 5000);
+       // Limpiar mensaje de éxito después de 5 segundos
+       setTimeout(() => setSuccess(null), 5000);
 
-      // Recargar la lista de screens
-      await loadScreens();
+       // Recargar la lista de screens del rol actual
+       await loadScreens(roleId);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Error al asignar screens';
       setError(errorMessage);
@@ -282,13 +287,8 @@ const Screens: React.FC = () => {
       const { ScreenService } = await import('../services/screenService');
       await ScreenService.deleteScreenByPath(selectedScreenToDelete, roleId, currentAppId, currentScreens);
 
-      // Actualizar el estado local
-      setScreens(prevScreens => 
-        prevScreens.filter(screen => {
-          const screenPath = typeof screen === 'string' ? screen : screen.screen_path;
-          return screenPath !== selectedScreenToDelete;
-        })
-      );
+      // Recargar screens del rol actual en lugar de actualizar manualmente
+      await loadScreens(roleId);
 
       setShowDeleteModal(false);
       setSelectedScreenToDelete('');
@@ -377,13 +377,8 @@ const Screens: React.FC = () => {
       const { ScreenService } = await import('../services/screenService');
       await ScreenService.updateScreenByPath(selectedScreenToEdit, newScreenPath, roleId, currentAppId, currentScreens);
 
-      // Actualizar la screen seleccionada en el estado local
-      setScreens(prevScreens => 
-        prevScreens.map(screen => {
-          const screenPath = typeof screen === 'string' ? screen : screen.screen_path;
-          return screenPath === selectedScreenToEdit ? newScreenPath : screen;
-        })
-      );
+      // Recargar screens del rol actual en lugar de actualizar manualmente
+      await loadScreens(roleId);
 
       setShowEditModal(false);
       setEditingScreenData({ id: '', screen_path: '' });
@@ -459,11 +454,8 @@ const Screens: React.FC = () => {
       const { ScreenService } = await import('../services/screenService');
       await ScreenService.deleteScreenByPath(screenPath, roleId, currentAppId, currentScreens);
 
-      // Actualizar el estado local
-      setScreens(prevScreens => prevScreens.filter(screen => {
-        const currentScreenPath = typeof screen === 'string' ? screen : screen.screen_path;
-        return currentScreenPath !== screenPath;
-      }));
+      // Recargar screens del rol actual en lugar de actualizar manualmente
+      await loadScreens(roleId);
       setSuccess(`Screen "${screenPath}" eliminada exitosamente`);
       
       // Limpiar mensaje de error después de 3 segundos
