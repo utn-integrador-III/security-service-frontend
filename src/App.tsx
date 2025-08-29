@@ -54,10 +54,7 @@ const App: React.FC = () => {
           <Route path="/verify-code" element={<CodeVerification />} />
           <Route path="/" element={
             <AuthRedirect>
-              <div>
-                <Navigation />
-                <Home />
-              </div>
+              <Home />
             </AuthRedirect>
           } />
 
