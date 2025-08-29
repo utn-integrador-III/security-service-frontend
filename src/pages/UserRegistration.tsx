@@ -130,7 +130,7 @@ const UserRegistration: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 flex items-center justify-center p-6">
+    <div className="min-h-screen pt-20 bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 flex items-center justify-center p-6">
       {/* Background Pattern */}
       <div className="fixed inset-0 bg-black/20">
         <div className="absolute inset-0 bg-gradient-to-br from-turquesa/5 to-purple-500/5" />
