@@ -177,10 +177,6 @@ const Roles: React.FC = () => {
   };
 
   const handleDeleteRole = async (roleId: string) => {
-    if (!window.confirm('¿Estás seguro de que quieres eliminar este rol?')) {
-      return;
-    }
-
     setDeletingRoleId(roleId);
     setError(null);
     setSuccess(null);
