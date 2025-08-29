@@ -223,12 +223,12 @@ const AdminDashboard: React.FC = () => {
                   <div className="flex items-start space-x-4">
                     <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                       <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                       </svg>
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-blue-400 transition-colors">Crear Nuevo Usuario</h3>
-                      <p className="text-gray-400 text-sm">Registrar un nuevo usuario en el sistema con roles específicos</p>
+                      <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-blue-400 transition-colors">Registrar Nuevo Usuario</h3>
+                      <p className="text-gray-400 text-sm">Crear cuentas de usuario con roles específicos y asignación de aplicaciones</p>
                     </div>
                   </div>
                 </Link>
@@ -245,8 +245,8 @@ const AdminDashboard: React.FC = () => {
                       </svg>
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-green-400 transition-colors">Gestionar Roles</h3>
-                      <p className="text-gray-400 text-sm">Crear y modificar roles del sistema con permisos específicos</p>
+                      <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-green-400 transition-colors">Administrar Roles</h3>
+                      <p className="text-gray-400 text-sm">Crear, modificar y eliminar roles sin confirmaciones (streamlined)</p>
                     </div>
                   </div>
                 </Link>
