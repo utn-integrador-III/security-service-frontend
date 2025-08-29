@@ -8,8 +8,6 @@ Frontend de la aplicación Security Service construida con **React**, **TypeScri
 
 ### ⚠️ IMPORTANTE - Instalación Correcta
 
-**NO ejecutar `npm install` directamente.** Usar el comando seguro:
-
 ```bash
 # 1. Clonar el proyecto
 git clone [repository-url]
@@ -17,6 +15,8 @@ cd security-service-frontend
 
 # 2. ✅ Instalación con versiones correctas
 npm run install-safe
+      o
+npm install
 
 # 3. ✅ Verificar configuración
 npm run verify-tailwind
