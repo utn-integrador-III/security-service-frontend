@@ -1,34 +1,84 @@
-/* frontend/src/index.css */
-
-/* ======================================================================
-   1. DIRECTIVAS DE TAILWIND (NO TOCAR)
-   ====================================================================== */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ======================================================================
-   2. RESET Y ESTILOS GLOBALES
-   - Soluciona problemas de márgenes y desbordamiento (scroll).
-   - Establece el color de fondo oscuro para toda la app.
-   ====================================================================== */
-html, body, #root {
-  height: 100%;
+@layer utilities {
+  .text-turquesa {
+    color: #21665f;
+  }
+  
+  .text-turquesa-dark {
+    color: #1a524c;
+  }
+  
+  .bg-turquesa {
+    background-color: #21665f;
+  }
+  
+  .bg-turquesa-dark {
+    background-color: #1a524c;
+  }
+  
+  .border-turquesa {
+    border-color: #21665f;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
-  background-color: #333333; /* Fondo oscuro para toda la aplicación */
-  color: #f0f0f0; /* Texto claro por defecto */
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-*, *::before, *::after {
-  box-sizing: inherit; /* Asegura que el box-sizing sea consistente */
+* {
+  box-sizing: border-box;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
 }
 
 /* ======================================================================
-   3. CLASES DE UTILIDAD PERSONALIZADAS
+   3. CLASES DE UTILIDAD PERSONALIZADAS Y EFECTOS VISUALES
    - Aquí puedes añadir tus propias clases reutilizables.
    ====================================================================== */
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Text shadow utilities */
+.text-shadow-lg {
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Custom backdrop blur for better performance */
+.backdrop-blur-custom {
+  backdrop-filter: blur(12px) saturate(180%);
+}
+
+/* Enhanced gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #21665f, #1a524c, #21665f);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glow effect for cards */
+.glow-turquesa {
+  box-shadow: 0 0 20px rgba(33, 102, 95, 0.3);
+}
 
 /* Color de fondo para Header y Footer */
 .bg-turquesa {
@@ -42,33 +92,47 @@ html, body, #root {
 
 /* ======================================================================
    4. ESTILOS DE COMPONENTES (OPCIONAL)
-   - Si quieres definir un estilo de botón global, puedes hacerlo aquí.
+   - Botones globales mejorados y consistentes
    ====================================================================== */
 .btn {
-  padding: 0.5rem 1rem; /* 8px 16px */
-  border-radius: 9999px; /* fully-rounded */
-  font-weight: 600; /* semibold */
-  transition: background-color 0.2s;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+  min-width: 140px;
 }
 
 .btn-primary {
-  background-color: #21665f; /* turquesa */
+  background-color: #21665f;
   color: white;
+  box-shadow: 0 4px 6px rgba(33, 102, 95, 0.2);
 }
 
 .btn-primary:hover {
-  background-color: #1a524c; /* turquesa más oscuro */
+  background-color: #1a524c;
+  box-shadow: 0 6px 8px rgba(33, 102, 95, 0.3);
+  transform: translateY(-1px);
 }
 
 .btn-secondary {
   background-color: white;
-  color: #21665f; /* turquesa */
+  color: #21665f;
   border: 2px solid #21665f;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .btn-secondary:hover {
-  background-color: #f0f0f0; /* un gris muy claro */
+  background-color: #f8f9fa;
   border-color: #1a524c;
+  color: #1a524c;
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
 }
 
 /* ======================================================================
