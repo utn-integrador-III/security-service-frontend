@@ -57,9 +57,16 @@ npm run verify-tailwind # Verificar configuración Tailwind
 
 ## 📚 Documentación
 
+- **`MERGE_INSTRUCTIONS.md`** - ⚠️ **CRÍTICO:** Instrucciones para merge de ramas
 - **`API_INTEGRATION.md`** - Configuración backend y API
 - **`README_TAILWIND.md`** - Guía instalación Tailwind CSS
 - **`TAILWIND_CONFIG_DEFINITIVA.md`** - Configuración completa Tailwind
+
+---
+
+## ⚠️ PARA DESARROLLADORES
+
+**LEER OBLIGATORIAMENTE:** `MERGE_INSTRUCTIONS.md` antes de hacer cualquier merge.
 
 ---
 
