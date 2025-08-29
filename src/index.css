@@ -1,28 +1,50 @@
-/* frontend/src/index.css */
-
-/* ======================================================================
-   1. DIRECTIVAS DE TAILWIND (NO TOCAR)
-   ====================================================================== */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ======================================================================
-   2. RESET Y ESTILOS GLOBALES
-   - Soluciona problemas de márgenes y desbordamiento (scroll).
-   - Establece el color de fondo oscuro para toda la app.
-   ====================================================================== */
-html, body, #root {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  background-color: #333333; /* Fondo oscuro para toda la aplicación */
-  color: #f0f0f0; /* Texto claro por defecto */
+@layer utilities {
+  .text-turquesa {
+    color: #21665f;
+  }
+  
+  .text-turquesa-dark {
+    color: #1a524c;
+  }
+  
+  .bg-turquesa {
+    background-color: #21665f;
+  }
+  
+  .bg-turquesa-dark {
+    background-color: #1a524c;
+  }
+  
+  .border-turquesa {
+    border-color: #21665f;
+  }
 }
 
-*, *::before, *::after {
-  box-sizing: inherit; /* Asegura que el box-sizing sea consistente */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
 }
 
 /* ======================================================================

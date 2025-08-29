@@ -53,7 +53,7 @@ const AdminDashboard: React.FC = () => {
             <strong>Acceso Denegado:</strong> Solo los administradores pueden acceder a este panel.
           </div>
           <Link 
-            to="/signin" 
+            to="/admin-signin" 
             className="error-link"
           >
             Volver al inicio de sesión
