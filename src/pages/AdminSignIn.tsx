@@ -150,12 +150,12 @@ const AdminSignIn: React.FC = () => {
             {/* Footer */}
             <div className="mt-8 pt-6 border-t border-gray-700/50 text-center">
               <p className="text-gray-400 text-sm">
-                ¿Eres un usuario regular?{' '}
+                ¿No tienes una cuenta?{' '}
                 <a
-                  href="/admin-signin"
+                  href="/signup"
                   className="text-turquesa hover:text-turquesa-dark font-semibold transition-colors duration-300"
                 >
-                  Inicia sesión aquí
+                  Regístrate aquí
                 </a>
               </p>
             </div>
