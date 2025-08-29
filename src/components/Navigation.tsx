@@ -8,15 +8,14 @@ const Navigation: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const isAuthenticated = AuthService.isAuthenticated();
   const isAdmin = AuthService.isAdmin();
-  const userType = AuthService.getUserType();
 
   const handleLogout = async () => {
     try {
       await AuthService.logout();
-      navigate('/signin');
+      navigate('/admin-signin');
     } catch (error) {
       console.error('Logout error:', error);
-      navigate('/signin');
+      navigate('/admin-signin');
     }
   };
 
@@ -43,20 +42,6 @@ const Navigation: React.FC = () => {
             
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-2">
-              <Link
-                to="/signin"
-                className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300 flex items-center space-x-2 ${
-                  location.pathname === '/signin'
-                    ? 'bg-turquesa/20 text-turquesa border border-turquesa/30'
-                    : 'text-gray-300 hover:text-white hover:bg-gray-800/50'
-                }`}
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                </svg>
-                <span>Iniciar Sesión</span>
-              </Link>
-              
               <Link
                 to="/admin-signin"
                 className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300 flex items-center space-x-2 ${
@@ -102,17 +87,6 @@ const Navigation: React.FC = () => {
           {/* Mobile Navigation */}
           {isMobileMenuOpen && (
             <div className="md:hidden border-t border-gray-700/50 py-4 space-y-2">
-              <Link
-                to="/signin"
-                className={`block px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-300 ${
-                  location.pathname === '/signin'
-                    ? 'bg-turquesa/20 text-turquesa'
-                    : 'text-gray-300 hover:text-white hover:bg-gray-800/50'
-                }`}
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Iniciar Sesión
-              </Link>
               <Link
                 to="/admin-signin"
                 className={`block px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-300 ${

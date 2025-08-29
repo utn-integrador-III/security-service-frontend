@@ -42,7 +42,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ title, subtitle }) => {
       
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row gap-6 justify-center items-center pt-8 animate-slide-up">
-        <ActionButton to="/signin" variant="primary">
+        <ActionButton to="/admin-signin" variant="primary">
           Iniciar Sesión →
         </ActionButton>
         <ActionButton to="/signup" variant="secondary">

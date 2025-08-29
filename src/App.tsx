@@ -5,7 +5,6 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AdminProtectedRoute from './components/AdminProtectedRoute';
 import AuthRedirect from './components/AuthRedirect';
 import Home from './pages/Home';
-import SignIn from './pages/SignIn';
 import AdminSignIn from './pages/AdminSignIn';
 import SignUp from './pages/SignUp/SignUp';
 import Dashboard from './pages/Dashboard';
@@ -27,14 +26,6 @@ const App: React.FC = () => {
       <div className="App">
         <Routes>
           {/* Rutas Públicas - Con navegación */}
-          <Route path="/signin" element={
-            <AuthRedirect>
-              <div>
-                <Navigation />
-                <SignIn />
-              </div>
-            </AuthRedirect>
-          } />
           <Route path="/admin-signin" element={
             <AuthRedirect>
               <div>
