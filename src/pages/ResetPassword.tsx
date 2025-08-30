@@ -1,60 +1,35 @@
 import React, { useState } from 'react';
 import { UserService } from '../services/userService';
 
-const CodeVerification: React.FC = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    verificationCode: ''
-  });
+const ResetPassword: React.FC = () => {
+  const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const validateForm = () => {
-    if (!formData.email || !formData.verificationCode) {
-      setError('Todos los campos son requeridos');
-      return false;
-    }
-    if (formData.verificationCode.length < 6) {
-      setError('El código de verificación debe tener al menos 6 dígitos');
-      return false;
-    }
-    return true;
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess('');
 
-    if (!validateForm()) {
+    if (!email) {
+      setError('Por favor ingresa tu correo electrónico');
       return;
     }
 
     setLoading(true);
 
     try {
-      const result = await UserService.verifyUserEmail(formData.email, formData.verificationCode);
+      const result = await UserService.requestPasswordReset(email);
       
-      if (result.message_code === 'VERIFICATION_SUCCESSFUL') {
-        setSuccess('¡Verificación exitosa! Tu cuenta ha sido activada.');
-        setFormData({
-          email: '',
-          verificationCode: ''
-        });
+      if (result.message_code === 'PASSWORD_RESET_INITIATED') {
+        setSuccess('Se ha enviado una contraseña temporal a tu correo electrónico. Por favor revisa tu bandeja de entrada.');
+        setEmail('');
       } else {
-        setError(result.message || 'Error en la verificación');
+        setError(result.message || 'Error al solicitar el restablecimiento de contraseña');
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Error en la verificación');
+      setError(error instanceof Error ? error.message : 'Error al solicitar el restablecimiento de contraseña');
     } finally {
       setLoading(false);
     }
@@ -77,14 +52,14 @@ const CodeVerification: React.FC = () => {
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-turquesa to-turquesa-dark rounded-2xl mb-4 shadow-lg">
               <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
             </div>
             <h2 className="text-3xl font-bold text-white mb-2">
-              Verificar Cuenta
+              Restablecer Contraseña
             </h2>
             <p className="text-gray-300">
-              Ingresa el código de verificación enviado a tu email
+              Ingresa tu correo electrónico para recibir una contraseña temporal
             </p>
           </div>
           
@@ -125,40 +100,12 @@ const CodeVerification: React.FC = () => {
                   name="email"
                   type="email"
                   required
-                  value={formData.email}
-                  onChange={handleInputChange}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="block w-full pl-10 pr-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-turquesa focus:border-transparent transition-all duration-300"
                   placeholder="usuario@email.com"
                 />
               </div>
-            </div>
-
-            {/* Verification Code Field */}
-            <div className="space-y-2">
-              <label htmlFor="verificationCode" className="block text-sm font-semibold text-gray-200">
-                Código de Verificación
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                  </svg>
-                </div>
-                <input
-                  id="verificationCode"
-                  name="verificationCode"
-                  type="text"
-                  required
-                  maxLength={6}
-                  value={formData.verificationCode}
-                  onChange={handleInputChange}
-                  className="block w-full pl-10 pr-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-turquesa focus:border-transparent transition-all duration-300 text-center text-lg tracking-widest"
-                  placeholder="000000"
-                />
-              </div>
-              <p className="text-xs text-gray-400">
-                Ingresa el código de 6 dígitos enviado a tu email
-              </p>
             </div>
 
             {/* Submit Button */}
@@ -173,28 +120,37 @@ const CodeVerification: React.FC = () => {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  <span>Verificando...</span>
+                  <span>Enviando...</span>
                 </>
               ) : (
                 <>
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
-                  <span>Verificar Cuenta</span>
+                  <span>Enviar Contraseña Temporal</span>
                 </>
               )}
             </button>
           </form>
 
           {/* Footer */}
-          <div className="mt-8 text-center">
+          <div className="mt-8 text-center space-y-2">
             <p className="text-gray-400 text-sm">
-              ¿No recibiste el código?{' '}
+              ¿Recuerdas tu contraseña?{' '}
+              <a 
+                href="/change-password" 
+                className="text-turquesa hover:text-turquesa-dark font-semibold hover:underline transition-colors duration-300"
+              >
+                Cambiar contraseña
+              </a>
+            </p>
+            <p className="text-gray-400 text-sm">
+              ¿No tienes cuenta?{' '}
               <a 
                 href="/user-registration" 
                 className="text-turquesa hover:text-turquesa-dark font-semibold hover:underline transition-colors duration-300"
               >
-                Registrar nuevo usuario
+                Registrarse
               </a>
             </p>
           </div>
@@ -204,4 +160,4 @@ const CodeVerification: React.FC = () => {
   );
 };
 
-export default CodeVerification;
+export default ResetPassword;
