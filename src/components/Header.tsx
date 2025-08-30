@@ -21,7 +21,7 @@ const Header: React.FC = () => {
               </Link>
             </li>
             <li>
-              <Link to="/signin" className="text-text-light">
+              <Link to="/admin-signin" className="text-text-light">
                 Iniciar Sesión
               </Link>
             </li>

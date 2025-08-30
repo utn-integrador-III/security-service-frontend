@@ -1,0 +1,696 @@
+/* Roles.css */
+
+/* Contenedor principal con gradiente de fondo */
+.roles-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #333333 0%, #2a2a2a 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1.5rem;
+  padding-top: 6rem; /* Espacio para navbar fija */
+}
+
+/* Tarjeta del formulario con borde decorativo */
+.roles-card {
+  background: #3a3a3a;
+  padding: 2.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 8px 24px rgba(33, 102, 95, 0.4), inset 0 0 10px rgba(33, 102, 95, 0.2);
+  max-width: 32rem;
+  width: 100%;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Efecto decorativo de borde animado */
+.roles-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: 1rem;
+  padding: 2px;
+  background: linear-gradient(45deg, #21665f, #1a524c);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  
+  pointer-events: none; /* <--- si esto se quita, pasa algo que no s epuede hacer clicks en los inputs
+  porque hace que la mascara invisible que tiene el form los bloquee */
+}
+
+
+/* Título con animación sutil */
+.roles-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #f0f0f0;
+  text-align: center;
+  margin-bottom: 2rem;
+  position: relative;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: color 0.3s ease;
+}
+
+.roles-title:hover {
+  color: #21665f;
+}
+
+/* Formulario */
+.roles-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Grupo de inputs */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Etiquetas */
+.form-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #f0f0f0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Inputs con animaciones */
+.form-input {
+  padding: 0.75rem;
+  background: #2a2a2a;
+  border: 2px solid #21665f;
+  border-radius: 0.5rem;
+  color: #f0f0f0;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-input::placeholder {
+  color: #6b7280;
+  opacity: 0.8;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #1a524c;
+  box-shadow: 0 0 0 3px rgba(33, 102, 95, 0.2);
+  transform: translateY(-2px);
+}
+
+
+
+/* Grid de permisos */
+.permissions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+/* Items de permisos */
+.permission-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: #2a2a2a;
+  border: 2px solid #21665f;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.permission-item:hover {
+  background: #323232;
+  border-color: #1a524c;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(33, 102, 95, 0.3);
+}
+
+/* Checkbox personalizado */
+.permission-checkbox {
+  width: 1.2rem;
+  height: 1.2rem;
+  accent-color: #21665f;
+  cursor: pointer;
+}
+
+/* Label del permiso */
+.permission-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #f0f0f0;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Botón de envío */
+.submit-button {
+  background: linear-gradient(135deg, #21665f 0%, #1a524c 100%);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  position: relative;
+  z-index: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.submit-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #1a524c 0%, #21665f 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(33, 102, 95, 0.4);
+}
+
+.submit-button:disabled {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  opacity: 0.6;
+}
+
+/* Icono del botón */
+.button-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  transition: transform 0.3s ease;
+}
+
+.submit-button:hover .button-icon {
+  transform: rotate(90deg);
+}
+
+/* Lista de roles existentes */
+.roles-list {
+  margin-top: 3rem;
+  position: relative;
+  z-index: 1;
+}
+
+.roles-list-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #f0f0f0;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Grid de roles */
+.roles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Tarjeta de rol */
+.role-card {
+  background: #2a2a2a;
+  border: 2px solid #21665f;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.role-card:hover {
+  background: #323232;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(33, 102, 95, 0.3);
+}
+
+/* Nombre del rol */
+.role-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #f0f0f0;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Descripción del rol */
+.role-description {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+/* Permisos del rol */
+.role-permissions {
+  margin-bottom: 1.5rem;
+}
+
+.role-permissions-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #f0f0f0;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.role-permissions-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.permission-badge {
+  background: linear-gradient(135deg, #21665f 0%, #1a524c 100%);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid #21665f;
+}
+
+/* Acciones del rol */
+.role-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+}
+
+/* Botón de editar */
+.edit-button {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  justify-content: center;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.edit-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #047857 0%, #059669 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+}
+
+.edit-button:disabled {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  opacity: 0.6;
+}
+
+.edit-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Botón de eliminar */
+.delete-button {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  justify-content: center;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.delete-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.delete-button:disabled {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  opacity: 0.6;
+}
+
+.delete-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Estado vacío */
+.empty-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: #2a2a2a;
+  border: 2px solid #21665f;
+  border-radius: 0.75rem;
+  position: relative;
+  z-index: 1;
+}
+
+.empty-state-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #f0f0f0;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.empty-state-description {
+  color: #6b7280;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.empty-state-note {
+  color: #21665f;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Mensaje de error */
+.error-message {
+  background: linear-gradient(135deg, #2a2a2a 0%, #1f2937 100%);
+  border: 2px solid #dc2626;
+  color: #fca5a5;
+  padding: 1rem 1.5rem;
+  border-radius: 0.75rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
+  animation: slideIn 0.3s ease-out;
+}
+
+.error-message::before {
+  content: '❌';
+  font-size: 1.2rem;
+}
+
+/* Mensaje de éxito */
+.success-message {
+  background: linear-gradient(135deg, #2a2a2a 0%, #1f2937 100%);
+  border: 2px solid #059669;
+  color: #6ee7b7;
+  padding: 1rem 1.5rem;
+  border-radius: 0.75rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+  animation: slideIn 0.3s ease-out;
+}
+
+.success-message::before {
+  content: '✅';
+  font-size: 1.2rem;
+}
+
+.loading-message {
+  text-align: center;
+  padding: 1.5rem;
+  color: #6b7280;
+  font-weight: 500;
+  position: relative;
+  z-index: 1;
+  background: #2a2a2a;
+  border-radius: 0.75rem;
+  border: 2px solid #21665f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.loading-message::before {
+  content: '⏳';
+  font-size: 1.2rem;
+  animation: spin 1s linear infinite;
+}
+
+/* Modal de edición */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: #3a3a3a;
+  border-radius: 1rem;
+  padding: 2rem;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 24px rgba(33, 102, 95, 0.4), inset 0 0 10px rgba(33, 102, 95, 0.2);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  position: relative;
+}
+
+.modal-content::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: 1rem;
+  padding: 2px;
+  background: linear-gradient(45deg, #21665f, #1a524c);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #f0f0f0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-close:hover {
+  background: #2a2a2a;
+  color: #f0f0f0;
+}
+
+.modal-close svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.modal-button {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: none;
+}
+
+.modal-button.primary {
+  background: linear-gradient(135deg, #21665f 0%, #1a524c 100%);
+  color: white;
+}
+
+.modal-button.primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #1a524c 0%, #21665f 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(33, 102, 95, 0.3);
+}
+
+.modal-button.secondary {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+  color: white;
+}
+
+.modal-button.secondary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #4b5563 0%, #6b7280 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+}
+
+.modal-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .roles-container {
+    padding: 1rem;
+  }
+  
+  .roles-card {
+    padding: 2rem;
+    max-width: 100%;
+  }
+  
+  .roles-title {
+    font-size: 1.75rem;
+  }
+  
+  .roles-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .role-card {
+    padding: 1.25rem;
+  }
+  
+  .role-name {
+    font-size: 1.1rem;
+  }
+  
+  .role-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .edit-button,
+  .delete-button {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.8rem;
+  }
+  
+  .modal-content {
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+  }
+}

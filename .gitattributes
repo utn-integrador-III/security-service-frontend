@@ -1,0 +1,9 @@
+# CONFIGURACIÓN CRÍTICA DE TAILWIND - NO MODIFICAR
+tailwind.config.js text eol=lf
+postcss.config.cjs text eol=lf
+src/index.css text eol=lf
+TAILWIND_CONFIG_DEFINITIVA.md text eol=lf
+
+# Asegurar que las configuraciones se mantengan consistentes
+*.config.js text eol=lf
+*.config.cjs text eol=lf

@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { UserService } from '../services/userService';
 
-const CodeVerification: React.FC = () => {
+const ChangePassword: React.FC = () => {
   const [formData, setFormData] = useState({
-    email: '',
-    verificationCode: ''
+    userEmail: '',
+    oldPassword: '',
+    newPassword: '',
+    confirmPassword: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -19,12 +21,16 @@ const CodeVerification: React.FC = () => {
   };
 
   const validateForm = () => {
-    if (!formData.email || !formData.verificationCode) {
+    if (!formData.userEmail || !formData.oldPassword || !formData.newPassword || !formData.confirmPassword) {
       setError('Todos los campos son requeridos');
       return false;
     }
-    if (formData.verificationCode.length < 6) {
-      setError('El código de verificación debe tener al menos 6 dígitos');
+    if (formData.newPassword.length < 8) {
+      setError('La nueva contraseña debe tener al menos 8 caracteres');
+      return false;
+    }
+    if (formData.newPassword !== formData.confirmPassword) {
+      setError('Las contraseñas no coinciden');
       return false;
     }
     return true;
@@ -42,19 +48,26 @@ const CodeVerification: React.FC = () => {
     setLoading(true);
 
     try {
-      const result = await UserService.verifyUserEmail(formData.email, formData.verificationCode);
+      const result = await UserService.changePassword(
+        formData.userEmail,
+        formData.oldPassword,
+        formData.newPassword,
+        formData.confirmPassword
+      );
       
-      if (result.message_code === 'VERIFICATION_SUCCESSFUL') {
-        setSuccess('¡Verificación exitosa! Tu cuenta ha sido activada.');
+      if (result.message_code === 'PASSWORD_UPDATED_SUCCESSFULLY') {
+        setSuccess('¡Contraseña actualizada exitosamente!');
         setFormData({
-          email: '',
-          verificationCode: ''
+          userEmail: '',
+          oldPassword: '',
+          newPassword: '',
+          confirmPassword: ''
         });
       } else {
-        setError(result.message || 'Error en la verificación');
+        setError(result.message || 'Error al cambiar la contraseña');
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Error en la verificación');
+      setError(error instanceof Error ? error.message : 'Error al cambiar la contraseña');
     } finally {
       setLoading(false);
     }
@@ -77,14 +90,14 @@ const CodeVerification: React.FC = () => {
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-turquesa to-turquesa-dark rounded-2xl mb-4 shadow-lg">
               <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
             <h2 className="text-3xl font-bold text-white mb-2">
-              Verificar Cuenta
+              Cambiar Contraseña
             </h2>
             <p className="text-gray-300">
-              Ingresa el código de verificación enviado a tu email
+              Actualiza tu contraseña de acceso
             </p>
           </div>
           
@@ -111,7 +124,7 @@ const CodeVerification: React.FC = () => {
 
             {/* Email Field */}
             <div className="space-y-2">
-              <label htmlFor="email" className="block text-sm font-semibold text-gray-200">
+              <label htmlFor="userEmail" className="block text-sm font-semibold text-gray-200">
                 Correo Electrónico
               </label>
               <div className="relative">
@@ -121,11 +134,11 @@ const CodeVerification: React.FC = () => {
                   </svg>
                 </div>
                 <input
-                  id="email"
-                  name="email"
+                  id="userEmail"
+                  name="userEmail"
                   type="email"
                   required
-                  value={formData.email}
+                  value={formData.userEmail}
                   onChange={handleInputChange}
                   className="block w-full pl-10 pr-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-turquesa focus:border-transparent transition-all duration-300"
                   placeholder="usuario@email.com"
@@ -133,10 +146,10 @@ const CodeVerification: React.FC = () => {
               </div>
             </div>
 
-            {/* Verification Code Field */}
+            {/* Old Password Field */}
             <div className="space-y-2">
-              <label htmlFor="verificationCode" className="block text-sm font-semibold text-gray-200">
-                Código de Verificación
+              <label htmlFor="oldPassword" className="block text-sm font-semibold text-gray-200">
+                Contraseña Actual
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -145,20 +158,64 @@ const CodeVerification: React.FC = () => {
                   </svg>
                 </div>
                 <input
-                  id="verificationCode"
-                  name="verificationCode"
-                  type="text"
+                  id="oldPassword"
+                  name="oldPassword"
+                  type="password"
                   required
-                  maxLength={6}
-                  value={formData.verificationCode}
+                  value={formData.oldPassword}
                   onChange={handleInputChange}
-                  className="block w-full pl-10 pr-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-turquesa focus:border-transparent transition-all duration-300 text-center text-lg tracking-widest"
-                  placeholder="000000"
+                  className="block w-full pl-10 pr-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-turquesa focus:border-transparent transition-all duration-300"
+                  placeholder="••••••••"
                 />
               </div>
-              <p className="text-xs text-gray-400">
-                Ingresa el código de 6 dígitos enviado a tu email
-              </p>
+            </div>
+
+            {/* New Password Field */}
+            <div className="space-y-2">
+              <label htmlFor="newPassword" className="block text-sm font-semibold text-gray-200">
+                Nueva Contraseña
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                </div>
+                <input
+                  id="newPassword"
+                  name="newPassword"
+                  type="password"
+                  required
+                  value={formData.newPassword}
+                  onChange={handleInputChange}
+                  className="block w-full pl-10 pr-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-turquesa focus:border-transparent transition-all duration-300"
+                  placeholder="••••••••"
+                />
+              </div>
+            </div>
+
+            {/* Confirm New Password Field */}
+            <div className="space-y-2">
+              <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-200">
+                Confirmar Nueva Contraseña
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  required
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
+                  className="block w-full pl-10 pr-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-turquesa focus:border-transparent transition-all duration-300"
+                  placeholder="••••••••"
+                />
+              </div>
             </div>
 
             {/* Submit Button */}
@@ -173,14 +230,14 @@ const CodeVerification: React.FC = () => {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  <span>Verificando...</span>
+                  <span>Actualizando...</span>
                 </>
               ) : (
                 <>
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
-                  <span>Verificar Cuenta</span>
+                  <span>Cambiar Contraseña</span>
                 </>
               )}
             </button>
@@ -189,12 +246,12 @@ const CodeVerification: React.FC = () => {
           {/* Footer */}
           <div className="mt-8 text-center">
             <p className="text-gray-400 text-sm">
-              ¿No recibiste el código?{' '}
+              ¿Olvidaste tu contraseña?{' '}
               <a 
-                href="/user-registration" 
+                href="/reset-password" 
                 className="text-turquesa hover:text-turquesa-dark font-semibold hover:underline transition-colors duration-300"
               >
-                Registrar nuevo usuario
+                Restablecer contraseña
               </a>
             </p>
           </div>
@@ -204,4 +261,4 @@ const CodeVerification: React.FC = () => {
   );
 };
 
-export default CodeVerification;
+export default ChangePassword;

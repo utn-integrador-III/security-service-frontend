@@ -2,18 +2,24 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { AuthService } from '../services/authService';
 
-interface ProtectedRouteProps {
+interface AdminProtectedRouteProps {
   children: React.ReactNode;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) => {
   const isAuthenticated = AuthService.isAuthenticated();
+  const isAdmin = AuthService.isAdmin();
 
   if (!isAuthenticated) {
     return <Navigate to="/admin-signin" replace />;
   }
 
+  if (!isAdmin) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   return <>{children}</>;
 };
 
-export default ProtectedRoute;
+export default AdminProtectedRoute;
+
