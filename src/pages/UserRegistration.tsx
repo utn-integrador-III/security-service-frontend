@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { AppService } from '../services/appService';
 import { RoleService } from '../services/roleService';
+import { UserService } from '../services/userService';
 
 const UserRegistration: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -100,20 +101,36 @@ const UserRegistration: React.FC = () => {
     setLoading(true);
 
     try {
-      // For future implementation
-      // const userData = {
-      //   name: formData.name,
-      //   email: formData.email,
-      //   password: formData.password,
-      //   apps: [{
-      //     role: formData.roleId,
-      //     app: formData.appId
-      //   }]
-      // };
+      // Obtener nombres de app y rol para el modo simple
+      const selectedApp = apps.find(app => app._id === formData.appId);
+      const selectedRole = roles.find(role => role._id === formData.roleId);
 
-      // Create user using the service
-      // await UserService.createUser(userData);
-      setSuccess('User created successfully! Verification code has been sent to your email.');
+      if (!selectedApp || !selectedRole) {
+        throw new Error('App or role not found');
+      }
+
+             const userData = {
+         name: formData.name,
+         email: formData.email,
+         password: formData.password,
+         // Usar modo simple con nombres
+         role_name: selectedRole.name,
+         app_name: selectedApp.name
+       };
+
+       console.log('📝 Selected app:', selectedApp);
+       console.log('📝 Selected role:', selectedRole);
+       console.log('📝 User data to send:', userData);
+
+       // Create user using the service
+       const result = await UserService.createUser(userData);
+      
+      // Manejar respuesta del controlador
+      if (result.message_code === 'CREATED') {
+        setSuccess('Usuario creado exitosamente! Se ha enviado un código de verificación a tu email.');
+      } else {
+        setSuccess(result.message || 'Usuario creado exitosamente!');
+      }
       setFormData({
         name: '',
         email: '',

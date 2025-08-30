@@ -24,7 +24,11 @@ export interface CreateUserRequest {
   name: string;
   email: string;
   password: string;
-  apps: {
+  // Modo simple
+  role_name?: string;
+  app_name?: string;
+  // Modo arreglo (compatibilidad)
+  apps?: {
     app: string;
     role: string;
   }[];
@@ -72,24 +76,53 @@ export class UserService {
     }
   }
 
-  // Create new user
-  static async createUser(userData: CreateUserRequest): Promise<User> {
+  // Create new user using the enrollment endpoint
+  static async createUser(userData: CreateUserRequest): Promise<any> {
     try {
+      console.log('🚀 Sending user data to backend:', userData);
+      console.log('🚀 API URL:', buildApiUrl('/user/enrollment'));
+      
       const response = await fetch(buildApiUrl('/user/enrollment'), {
         method: 'POST',
-        headers: AuthService.getAuthHeaders(),
+        headers: {
+          'Content-Type': 'application/json',
+          ...AuthService.getAuthHeaders(),
+        },
         body: JSON.stringify(userData),
       });
 
+      const result = await response.json();
+      console.log('📡 Backend response:', result);
+      console.log('📡 Response status:', response.status);
+      
       if (!response.ok) {
-        return handleApiError(response);
+        // Manejar errores específicos del controlador
+        if (result.message_code === 'USER_ALREADY_REGISTERED') {
+          throw new Error('El usuario ya está registrado con este rol y aplicación');
+        } else if (result.message_code === 'INVALID_NAME') {
+          throw new Error('El nombre no cumple con los estándares establecidos');
+        } else if (result.message_code === 'INVALID_EMAIL_DOMAIN') {
+          throw new Error('El correo electrónico proporcionado no es válido');
+        } else if (result.message_code === 'INVALID_PASSWORD') {
+          throw new Error('La contraseña no cumple con los estándares establecidos');
+        } else if (result.message_code === 'UNEXPECTED_ERROR') {
+          // Error interno del servidor - mostrar más detalles
+          console.error('Backend error details:', result);
+          throw new Error(`Error interno del servidor: ${result.message || 'Problema con el modelo de roles. Por favor contacta al administrador.'}`);
+        } else if (result.message) {
+          throw new Error(result.message);
+        } else {
+          throw new Error('Error al crear el usuario');
+        }
       }
 
-      const result = await response.json();
-      return result.data;
+      return result;
     } catch (error) {
       console.error('Error creating user:', error);
-      throw new Error('Error creating user');
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error('Error al crear el usuario');
     }
   }
 
@@ -149,6 +182,90 @@ export class UserService {
     } catch (error) {
       console.error('Error fetching admin users:', error);
       throw new Error('Error fetching users');
+    }
+  }
+
+  // Verify user email with code
+  static async verifyUserEmail(email: string, verificationCode: string): Promise<any> {
+    try {
+      const response = await fetch(buildApiUrl('/user/verification'), {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_email: email,
+          verification_code: verificationCode
+        }),
+      });
+
+      if (!response.ok) {
+        return handleApiError(response);
+      }
+
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.error('Error verifying user email:', error);
+      throw new Error('Error verifying user email');
+    }
+  }
+
+  // Change user password
+  static async changePassword(
+    userEmail: string, 
+    oldPassword: string, 
+    newPassword: string, 
+    confirmPassword: string
+  ): Promise<any> {
+    try {
+      const response = await fetch(buildApiUrl('/user/password'), {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_email: userEmail,
+          old_password: oldPassword,
+          new_password: newPassword,
+          confirm_password: confirmPassword
+        }),
+      });
+
+      if (!response.ok) {
+        return handleApiError(response);
+      }
+
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.error('Error changing password:', error);
+      throw new Error('Error changing password');
+    }
+  }
+
+  // Request password reset
+  static async requestPasswordReset(email: string): Promise<any> {
+    try {
+      const response = await fetch(buildApiUrl('/user/password'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email
+        }),
+      });
+
+      if (!response.ok) {
+        return handleApiError(response);
+      }
+
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.error('Error requesting password reset:', error);
+      throw new Error('Error requesting password reset');
     }
   }
 }
